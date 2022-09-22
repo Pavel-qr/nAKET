@@ -133,6 +133,22 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
     return result
 
 
+def get_tasks(session_token: str):
+    return requests.post(
+        url='https://pro.guap.ru/get-student-tasksdictionaries/',
+        cookies={'PHPSESSID': session_token}    # works with hardcoded token
+    ).content
+
+
+def get_session_token(login: str, password: str) -> str:
+    with requests.Session() as sess:
+        sess.post(url='https://pro.guap.ru/user/login_check', data={
+            '_username': login,
+            '_password': password
+        })
+        return sess.cookies['PHPSESSID']    # some token returns, but it not work
+
+
 def main():
     res = get_group_rasp('4142')
     pprint(res)
