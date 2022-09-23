@@ -11,13 +11,13 @@ groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
 
 nuber_to_time = {
-    '1': '(9:30–11:00)',
-    '2': '11:10–12:40',
-    '3': '(13:00–14:30)',
-    '4': '(15:00–16:30)',
-    '5': '(16:40–18:10)',
-    '6': '(18:30–20:00)',
-    '7': '(21:10–21:40)',
+    '1': '(9:30 – 11:00)',
+    '2': '(11:10 – 12:40)',
+    '3': '(13:00 – 14:30)',
+    '4': '(15:00 - 16:30)',
+    '5': '(16:40 - 18:10)',
+    '6': '(18:30 - 20:00)',
+    '7': '(21:10 - 21:40)',
 }
 
 
@@ -134,24 +134,23 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
 
 
 def get_tasks(session_token: str):
-    return requests.post(
-        url='https://pro.guap.ru/get-student-tasksdictionaries/',
-        cookies={'PHPSESSID': session_token}    # works with hardcoded token
-    ).content
+    with requests.Session() as sess:
+        sess.cookies['PHPSESSID'] = session_token
+        return sess.post(url='https://pro.guap.ru/get-student-tasksdictionaries/').text
 
 
 def get_session_token(login: str, password: str) -> str:
     with requests.Session() as sess:
-        sess.post(url='https://pro.guap.ru/user/login_check', data={
-            '_username': login,
-            '_password': password
-        })
-        return sess.cookies['PHPSESSID']    # some token returns, but it not work
+        for _ in range(2):  # <- lol
+            sess.post(url='https://pro.guap.ru/user/login_check', data={
+                '_username': login,
+                '_password': password
+            }, allow_redirects=False)
+        return sess.cookies['PHPSESSID']
 
 
 def main():
-    res = get_group_rasp('4142')
-    pprint(res)
+    print(get_tasks(get_session_token(input('Login: '), input("Password: "))))
 
 
 if __name__ == '__main__':
