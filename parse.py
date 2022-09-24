@@ -3,7 +3,7 @@ from enum import Enum
 from pprint import pprint
 from time import sleep
 from typing import Optional, List
-
+import warnings
 import requests
 from bs4 import BeautifulSoup, Tag
 
@@ -133,10 +133,12 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
     return result
 
 
-def get_tasks(session_token: str):
+def get_tasks(session_token: str) -> str:
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
-        return sess.post(url='https://pro.guap.ru/get-student-tasksdictionaries/').text
+        return sess.post(
+            url='https://pro.guap.ru/get-student-tasksdictionaries/'
+        ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/')
 
 
 def get_session_token(login: str, password: str) -> str:
@@ -150,7 +152,8 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    print(get_tasks(get_session_token(input('Login: '), input("Password: "))))
+    warnings.filterwarnings('ignore', category=DeprecationWarning)
+    print(get_tasks(get_session_token(input('Login: '), input('Password: '))))
 
 
 if __name__ == '__main__':
