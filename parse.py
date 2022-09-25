@@ -6,6 +6,9 @@ from typing import Optional, List
 import warnings
 import requests
 from bs4 import BeautifulSoup, Tag
+import json
+from tmp import logindata  # Tuple[login, password]
+import pandas as pd
 
 groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
@@ -61,15 +64,15 @@ def update_global_dicts() -> bool:
     global teachers_names_to_requests
     try:
         document = \
-            BeautifulSoup(requests.get('https://rasp.guap.ru/').text, 'lxml').select('.rasp')[0].select('.form')[0]
+            BeautifulSoup(requests.get('https://rasp.guap.ru/').text, 'lxml').select_one('.rasp').select_one('.form')
         groups_names_to_requests = {
             el.text: el.attrs['value']
-            for el in document.select('span:-soup-contains("группа:")')[0].select('option')
+            for el in document.select_one('span:-soup-contains("группа:")').select('option')
             # 'span:contains(группа:)'
         }
         teachers_names_to_requests = {
             el.text: el.attrs['value']
-            for el in document.select('span:-soup-contains("преподаватель:")')[0].select('option')
+            for el in document.select_one('span:-soup-contains("преподаватель:")').select('option')
             # 'span:contains(преподаватель:)'
         }
         return True
@@ -133,12 +136,62 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
     return result
 
 
-def get_tasks(session_token: str) -> str:
+def get_tasks(session_token: str) -> pd.DataFrame:
+    """
+    all fields are strings or nulls
+    get-student-tasksdictionaries: {
+        tasks: [
+            <task-objects list(
+                id             task id
+                user_id        teacher id
+                datecreate     creation date
+                dateupdate     last update date (not sure)
+                name           task title
+                description    task description
+                type           task type id
+                tt_name        task type name
+                public         ???
+                semester       task semester id
+                markpoint      task maximum grade
+                reportRequired ???
+                url            attached link (by teacher)
+                ordernum       for identical subjects, this field increases from one
+                expulsionLine  ???
+                plenty         ???
+                harddeadline   hard deadline data
+                grid           ???
+                subject        task subject id
+                subject_name   task subject name
+                hash           ???
+                filename       attached file (by teacher)
+                semester_name  task semester name
+                type_name      task type name
+                status         task status id
+                curPoints      received grade
+                status_name    task status name
+            )
+        ],
+        dictionaries: {
+            status: [<verification stages list (id, name)>],
+            subjects: [<subjects list (id, text, semester)>],
+            semester: [<semesters list (id, name)>], # names starts with space
+            types: [<task types list (id, name)>],
+            values: [...], offset and limit   # IDK what is this
+        }
+    }
+    """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
-        return sess.post(
-            url='https://pro.guap.ru/get-student-tasksdictionaries/'
-        ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/')
+        json_obj = json.loads(
+            sess.post(
+                url='https://pro.guap.ru/get-student-tasksdictionaries/'
+            ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            strict=False)
+        labels = ['id', 'user_id', 'type_name', 'name']
+        table = pd.DataFrame(columns=labels,
+                             data=([task[label] for label in labels] for task in
+                                   json_obj['tasks']))
+        return table
 
 
 def get_session_token(login: str, password: str) -> str:
@@ -153,7 +206,8 @@ def get_session_token(login: str, password: str) -> str:
 
 def main():
     warnings.filterwarnings('ignore', category=DeprecationWarning)
-    print(get_tasks(get_session_token(input('Login: '), input('Password: '))))
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(get_tasks(get_session_token(*logindata)))
 
 
 if __name__ == '__main__':
