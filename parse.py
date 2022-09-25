@@ -2,13 +2,16 @@ from dataclasses import dataclass
 from enum import Enum
 from pprint import pprint
 from time import sleep
-from typing import Optional, List
+from typing import Optional, List, Tuple
 import warnings
 import requests
 from bs4 import BeautifulSoup, Tag
 import json
 from tmp import logindata  # Tuple[login, password]
 import pandas as pd
+
+# from kivy.network.urlrequest import UrlRequest  # for async requests
+
 
 groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
@@ -62,7 +65,6 @@ class Lesson:
 def update_global_dicts() -> bool:
     global groups_names_to_requests
     global teachers_names_to_requests
-    global ids_to_teacher_names
     try:
         document = \
             BeautifulSoup(requests.get('https://rasp.guap.ru/').text, 'lxml').select_one('.rasp').select_one('.form')
@@ -137,7 +139,7 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
     return result
 
 
-def get_tasks(session_token: str) -> pd.DataFrame:
+def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) -> pd.DataFrame:
     """
     all fields are strings or nulls
     get-student-tasksdictionaries: {
@@ -170,7 +172,7 @@ def get_tasks(session_token: str) -> pd.DataFrame:
                 status         task status id
                 curPoints      received grade
                 status_name    task status name
-            )
+            )>
         ],
         dictionaries: {
             status: [<verification stages list (id, name)>],
@@ -188,7 +190,6 @@ def get_tasks(session_token: str) -> pd.DataFrame:
                 url='https://pro.guap.ru/get-student-tasksdictionaries/'
             ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
             strict=False)
-        labels = ['id', 'user_id', 'type_name', 'name']
         table = pd.DataFrame(columns=labels,
                              data=([task[label] for label in labels] for task in
                                    json_obj['tasks']))
@@ -197,7 +198,7 @@ def get_tasks(session_token: str) -> pd.DataFrame:
 
 def get_session_token(login: str, password: str) -> str:
     with requests.Session() as sess:
-        for _ in range(2):  # <- lol
+        for _ in range(2):  # simulate redirection with session token
             sess.post(url='https://pro.guap.ru/user/login_check', data={
                 '_username': login,
                 '_password': password
@@ -207,8 +208,8 @@ def get_session_token(login: str, password: str) -> str:
 
 def main():
     warnings.filterwarnings('ignore', category=DeprecationWarning)
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(get_tasks(get_session_token(*logindata)))
+    df = get_tasks(get_session_token(*logindata))
+    print(df.to_string())
 
 
 if __name__ == '__main__':
