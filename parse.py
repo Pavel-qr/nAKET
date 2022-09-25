@@ -62,6 +62,7 @@ class Lesson:
 def update_global_dicts() -> bool:
     global groups_names_to_requests
     global teachers_names_to_requests
+    global ids_to_teacher_names
     try:
         document = \
             BeautifulSoup(requests.get('https://rasp.guap.ru/').text, 'lxml').select_one('.rasp').select_one('.form')
