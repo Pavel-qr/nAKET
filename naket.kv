@@ -1,5 +1,25 @@
 #:kivy 2.1.0
 
 <Naket>:
-    Label:
-        text: "Hello, world"
+    AnchorLayout:
+        PageLayout:
+            AnchorLayout:
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: '[color=3333ff]Tasks[/color]'
+                    markup: True
+            AnchorLayout:
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: '[color=ff3333]Schedule[/color]'
+                    markup: True

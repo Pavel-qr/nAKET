@@ -1,11 +1,12 @@
 import parse
 from kivy.app import App
-from kivy.uix.widget import Widget
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy import require
 
 
-class Naket(Widget):
-    ...
+class Naket(AnchorLayout):
+    def __init__(self, **kwargs):
+        super(Naket, self).__init__(**kwargs)
 
 
 class NaketApp(App):
