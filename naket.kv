@@ -1,0 +1,45 @@
+#:kivy 2.1.0
+
+<Naket>:
+    PageLayout:
+        AnchorLayout:
+
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Rectangle:
+                    # self here refers to the widget i.e FloatLayout
+                    pos: self.pos
+                    size: self.size
+
+            ScrollView:
+                do_scroll_x: False
+                do_scroll_y: True
+                always_overscroll: False
+
+                GridLayout:
+                    cols: 1
+                    spacing: 5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    id: Tasks
+
+        AnchorLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            ScrollView:
+                do_scroll_x: False
+                do_scroll_y: True
+                always_overscroll: False
+
+                GridLayout:
+                    cols: 1
+                    spacing: 5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    id: Schedule
