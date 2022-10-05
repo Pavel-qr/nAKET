@@ -1,65 +1,15 @@
-from dataclasses import dataclass
-from enum import Enum
-from pprint import pprint
+import json
 from time import sleep
-from typing import Optional, List, Tuple
-import warnings
+from typing import List, Tuple
+
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
-import json
-from tmp import logindata  # Tuple[login, password]
-import pandas as pd
 
-# from kivy.network.urlrequest import UrlRequest  # for async requests
-
+from utils import Auditorium, WeekDay, Lesson, Week
 
 groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
-
-nuber_to_time = {
-    '1': '(9:30 – 11:00)',
-    '2': '(11:10 – 12:40)',
-    '3': '(13:00 – 14:30)',
-    '4': '(15:00 - 16:30)',
-    '5': '(16:40 - 18:10)',
-    '6': '(18:30 - 20:00)',
-    '7': '(21:10 - 21:40)',
-}
-
-
-class WeekDay(Enum):
-    monday = 'Понедельник'
-    tuesday = 'Вторник'
-    wednesday = 'Среда'
-    Thursday = 'Четверг'
-    Friday = 'Пятница'
-    Saturday = 'Суббота'
-    Sunday = 'Воскресенье'
-
-
-class Week(Enum):
-    all = '🔶'
-    up = 'верхняя (нечетная) ▲🔺'
-    dn = 'нижняя (четная) ▼🔻'
-    # out = 'вне сетки расписания (—)'
-
-
-@dataclass
-class Auditorium:
-    address: str
-    number: str
-
-
-@dataclass
-class Lesson:
-    name: str
-    type: str
-    day: WeekDay
-    number: str
-    auditorium: Auditorium
-    teachers: Optional[list[str]]
-    groups: Optional[list[str]]
-    week: Week
 
 
 def update_global_dicts() -> bool:
@@ -83,7 +33,8 @@ def update_global_dicts() -> bool:
         return False
 
 
-def get_group_rasp(group_name: str) -> List[Lesson]:
+def get_group_rasp(group_name: str | int) -> List[Lesson]:
+    group_name = str(group_name)
     for i in range(3):  # tries count
         if group_name in groups_names_to_requests:
             break
@@ -116,13 +67,13 @@ def get_group_rasp(group_name: str) -> List[Lesson]:
                 # print(child.select_one('span').find_all(text=True, recursive=False))
                 lesson = Lesson(
                     name=child.select_one('span').text.split(' – ')[1].strip(),
-                    type=child.select('span>b')[0].text,
+                    type=child.select('span>b')[-1].text,  # для week.all
                     number=child.find_previous_sibling('h4').text.split()[0],
                     day=WeekDay(child.find_previous_sibling('h3').text),
                     week=week,
                     auditorium=Auditorium(
-                        address=child.select('span>em')[0].text.split(', ')[0],
-                        number=child.select_one('span>em').text.split(', ')[1]
+                        address=child.select('span>em')[0].text.split(', ')[0].replace(' – ', ''),
+                        number=child.select_one('span>em').text.split(', ')[1].replace('ауд. ', '')
                     ),
                     groups=None,
                     teachers=None,
@@ -207,9 +158,12 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    warnings.filterwarnings('ignore', category=DeprecationWarning)
-    df = get_tasks(get_session_token(*logindata))
-    print(df.to_string())
+    a = get_group_rasp('4142')
+    for i in a:
+        print(i.week is Week.all)
+    # warnings.filterwarnings('ignore', category=DeprecationWarning)
+    # df = get_tasks(get_session_token(*logindata))
+    # print(df.to_string())
 
 
 if __name__ == '__main__':
