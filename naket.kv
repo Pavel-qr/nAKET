@@ -2,44 +2,54 @@
 
 <Naket>:
     PageLayout:
-        AnchorLayout:
+        WTasks
+        WSchedule
 
-            canvas.before:
-                Color:
-                    rgba: 0, 0, 0, 1
-                Rectangle:
-                    # self here refers to the widget i.e FloatLayout
-                    pos: self.pos
-                    size: self.size
 
-            ScrollView:
-                do_scroll_x: False
-                do_scroll_y: True
-                always_overscroll: False
+<WTasks>:
+    canvas.before:
+        Color:
+            rgba: .5, .7, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
-                GridLayout:
-                    cols: 1
-                    spacing: 5
-                    size_hint_y: None
-                    height: self.minimum_height
-                    id: Tasks
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+        always_overscroll: False
 
-        AnchorLayout:
-            canvas.before:
-                Color:
-                    rgba: 0, 0, 0, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 150
+            size_hint_y: None
+            height: self.minimum_height
+            id: Tasks
 
-            ScrollView:
-                do_scroll_x: False
-                do_scroll_y: True
-                always_overscroll: False
 
-                GridLayout:
-                    cols: 1
-                    spacing: 5
-                    size_hint_y: None
-                    height: self.minimum_height
-                    id: Schedule
+<WTask>:
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 1
+                rectangle: self.x, self.y, self.width, self.height
+
+        orientation: 'vertical'
+        spacing: 10
+        size_hint_y: None
+        Label:
+            id: Teacher
+            text: 'Teacher'
+        Label:
+            id: Type
+            text: 'Task type'
+        Label:
+            id: Name
+            text: 'Task name'
+
+
+<WSchedule>
+
+<WLesson>

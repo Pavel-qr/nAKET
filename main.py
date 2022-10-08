@@ -1,46 +1,76 @@
-from kivy.app import App
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
+from typing import List
+
+import pandas as pd
 from kivy import require
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.pagelayout import PageLayout
+from kivy.uix.scrollview import ScrollView
 
-from random import randint
-import parse
+from utils import Lesson
 
 
-class Naket(AnchorLayout):
-    def add_tasks(self):
-        # todo remove all tasks here
-        ...
+class Naket(PageLayout):
+    ...
 
-        for _ in range(30):
-            self.ids.Tasks.add_widget(Button(
-                text=f'Task №{randint(34545, 1838581)}.',
-                size_hint_y=None, height=40
-            ))
 
-    def add_schedule(self):
-        # todo remove all schedules here
-        ...
+class WTasks(ScrollView):
+    def add_tasks(self, tasks: pd.DataFrame | None = None):
+        self.ids.Tasks.clear_widgets()
 
-        for _ in range(7):
-            self.ids.Schedule.add_widget(Label(
-                text='Day of the week or something',
-                size_hint_y=None, height=40
-            ))
-            for _ in range(5):
-                self.ids.Schedule.add_widget(Button(
-                    text=f'Some couple',
-                    size_hint_y=None, height=40
-                ))
+        if tasks is None:
+            for _ in range(50):
+                self.ids.Tasks.add_widget(WTask())
+        else:
+            tasks.apply(
+                lambda task: self.ids.Tasks.add_widget(WTask(task)),
+                axis=1
+            )
+
+
+class WSchedule(ScrollView):
+    def add_schedule(self, lessons: List[Lesson] | None = None):
+        self.ids.Schedule.clear_widgets()
+
+        if lessons is not None:
+            ...
+        else:
+            for _ in range(50):
+                self.ids.Schedule.add_widget(WLesson())
+
+
+class WTask(BoxLayout):
+    """
+    Widget representation of task.
+
+    +----------+
+    |  teacher |
+    |   type   |
+    |   name   |
+    +----------+
+    """
+
+    def __init__(self, task: pd.Series | None = None):
+        super(WTask, self).__init__()
+        if task is not None:
+            self.ids.Teacher.text = task['user_id']
+            self.ids.Type.text = task['type_name']
+            self.ids.Name.text = task['name']
+
+
+class WLesson(BoxLayout):
+    def __init__(self, lesson: Lesson | None = None):
+        super(WLesson, self).__init__()
+        if lesson is not None:
+            ...
 
 
 class NaketApp(App):
     def build(self):
         self.title = 'nAKET'
-        root = Naket()
-        root.add_tasks()
-        root.add_schedule()
+        root = WTasks()
+        root.add_tasks(None)
+        # root.add_tasks(parse.get_tasks(parse.get_session_token(*config.logindata)))
         return root
 
 

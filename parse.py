@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
+import config
 from utils import Auditorium, WeekDay, Lesson, Week
 
 groups_names_to_requests = dict()
@@ -158,12 +159,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    a = get_group_rasp('4142')
-    for i in a:
-        print(i.week is Week.all)
-    # warnings.filterwarnings('ignore', category=DeprecationWarning)
-    # df = get_tasks(get_session_token(*logindata))
-    # print(df.to_string())
+    ...
 
 
 if __name__ == '__main__':
