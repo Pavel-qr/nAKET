@@ -18,16 +18,14 @@ def update_global_dicts() -> bool:
     global teachers_names_to_requests
     try:
         document = \
-            BeautifulSoup(requests.get('https://rasp.guap.ru/').text, 'lxml').select_one('.rasp').select_one('.form')
+            BeautifulSoup(requests.get('https://guap.ru/rasp/').text, 'lxml').select_one('.rasp').select_one('.form')
         groups_names_to_requests = {
             el.text: el.attrs['value']
             for el in document.select_one('span:-soup-contains("группа:")').select('option')
-            # 'span:contains(группа:)'
         }
         teachers_names_to_requests = {
             el.text: el.attrs['value']
             for el in document.select_one('span:-soup-contains("преподаватель:")').select('option')
-            # 'span:contains(преподаватель:)'
         }
         return True
     except IndexError:
@@ -47,7 +45,7 @@ def get_group_rasp(group_name: str | int) -> List[Lesson]:
         # todo raise
         raise
     children = \
-        BeautifulSoup(requests.get(f'https://rasp.guap.ru/?g={groups_names_to_requests[group_name]}').text,
+        BeautifulSoup(requests.get(f'https://guap.ru/rasp/?g={groups_names_to_requests[group_name]}').text,
                       'lxml').select_one('.result').children
     next(children)  # skip legend with div tag
     result = []
