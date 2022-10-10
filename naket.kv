@@ -1,5 +1,20 @@
 #:kivy 2.1.0
 
+<TaskLabel@Label>:
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
+
+    size_hint_y: None
+    height: self.texture_size[1]  # the size needed to fit the text
+    text_size: self.width, None
+    halign: 'center'
+    valign: 'middle'
+
+
 <AbstractListItem>:
     canvas.before:
         Color:
@@ -19,6 +34,8 @@
 
 
 <WTasks>:
+    refreshing: False
+
     canvas.before:
         Color:
             rgba: .5, .7, 0, 1
@@ -30,7 +47,7 @@
         id: tasks_scroll
         do_scroll_x: False
         do_scroll_y: True
-        effect_cls: 'ScrollEffect'
+        on_scroll_y: self.parent.check_update_scroll(self, tasks)
 
         BoxLayout:
             orientation: 'vertical'
@@ -42,18 +59,20 @@
 <WTask>:
     size_hint_y: None
 
-    Label:
+    TaskLabel:
         id: teacher
-        text: 'Teacher'
-    Label:
+        text: 'Teacher' * 15    # for long text tests
+    TaskLabel:
         id: type
         text: 'Task type'
-    Label:
+    TaskLabel:
         id: name
         text: 'Task name'
 
 
 <WSchedule>:
+    refreshing: False
+
     canvas.before:
         Color:
             rgba: .5, .7, 0, 1
@@ -65,7 +84,7 @@
         id: schedule_scroll
         do_scroll_x: False
         do_scroll_y: True
-        effect_cls: 'ScrollEffect'
+        on_scroll_y: self.parent.check_update_scroll(self, schedule)
 
         BoxLayout:
             orientation: 'vertical'
@@ -84,13 +103,9 @@
 
 <Naket>:
     swipe_on_scroll: False
-    width_mult: 0
+    items_spacing: 0
 
     WTasks:
         id: tasks
     WSchedule:
         id: schedule
-    MDSwiperItem:
-        Button:
-            text: 'update'
-            on_release: root.ids.tasks.add_tasks(None), root.ids.schedule.add_schedule(None)
