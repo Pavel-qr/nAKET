@@ -146,6 +146,31 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
         return table
 
 
+def get_materials(session_token: str) -> str:
+    """
+    getstudentmaterials: {
+        materials: [
+            <material-objects list(
+                id         material id
+                datecreate create date
+                name       material name and description
+                semester   material semester id
+                isPublic   "1" if public
+                url        external link
+                filelink   guap /get-material/* file link (may be "/get-material/" if empty)
+                subject    <subject-id list>
+                groups     <??? list>
+            )>
+        ]
+      }
+    """
+    with requests.Session() as sess:
+        sess.cookies['PHPSESSID'] = session_token
+        return sess.post(
+            url='https://pro.guap.ru/getstudentmaterials/'
+        ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/')
+
+
 def get_session_token(login: str, password: str) -> str:
     with requests.Session() as sess:
         for _ in range(2):  # simulate redirection with session token
@@ -157,6 +182,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
+    # print(get_materials(get_session_token(*config.logindata)))
     ...
 
 
