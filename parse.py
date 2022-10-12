@@ -1,12 +1,12 @@
 import json
 from time import sleep
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
-import config
+from config import logindata
 from utils import Auditorium, WeekDay, Lesson, Week
 
 groups_names_to_requests = dict()
@@ -32,7 +32,7 @@ def update_global_dicts() -> bool:
         return False
 
 
-def get_group_rasp(group_name: str | int) -> List[Lesson]:
+def get_group_rasp(group_name: str | int) -> Optional[List[Lesson]]:
     group_name = str(group_name)
     for i in range(3):  # tries count
         if group_name in groups_names_to_requests:
@@ -41,9 +41,7 @@ def get_group_rasp(group_name: str | int) -> List[Lesson]:
             sleep(1)
             print('Wait')
     else:
-        # Internet errors or group_name invalid
-        # todo raise
-        raise
+        return None  # Internet errors or group_name invalid
     children = \
         BeautifulSoup(requests.get(f'https://guap.ru/rasp/?g={groups_names_to_requests[group_name]}').text,
                       'lxml').select_one('.result').children
@@ -63,7 +61,6 @@ def get_group_rasp(group_name: str | int) -> List[Lesson]:
                 else:
                     week = Week.all
                 child: Tag
-                # print(child.select_one('span').find_all(text=True, recursive=False))
                 lesson = Lesson(
                     name=child.select_one('span').text.split(' – ')[1].strip(),
                     type=child.select('span>b')[-1].text,  # для week.all
@@ -140,13 +137,13 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
                 url='https://pro.guap.ru/get-student-tasksdictionaries/'
             ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
             strict=False)
-        table = pd.DataFrame(columns=labels,
-                             data=([task[label] for label in labels] for task in
-                                   json_obj['tasks']))
-        return table
+        return pd.DataFrame(
+            columns=labels,
+            data=([task[label] for label in labels] for task in
+                  json_obj['tasks']))
 
 
-def get_materials(session_token: str) -> str:
+def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'filelink')) -> pd.DataFrame:
     """
     getstudentmaterials: {
         materials: [
@@ -166,9 +163,19 @@ def get_materials(session_token: str) -> str:
     """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
-        return sess.post(
-            url='https://pro.guap.ru/getstudentmaterials/'
-        ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/')
+        json_obj = json.loads(
+            sess.post(
+                url='https://pro.guap.ru/getstudentmaterials/'
+            ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            strict=False)
+        return pd.DataFrame(
+            columns=labels,
+            data=([material[label] if label != 'filelink' else
+                   None if material[label] == '/get-material/' else
+                   'https://pro.guap.ru' + material[label]
+                   for label in labels] for material in
+                  json_obj['materials'])
+        )
 
 
 def get_session_token(login: str, password: str) -> str:
@@ -182,7 +189,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    # print(get_materials(get_session_token(*config.logindata)))
+    print(get_materials(get_session_token(*logindata)).to_string())
     ...
 
 
