@@ -1,12 +1,6 @@
 #:kivy 2.1.0
 
 <TaskLabel@Label>:
-    canvas.before:
-        Color:
-            rgba: 1, 0, 0, 1
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
 
     size_hint_y: None
     height: self.texture_size[1]  # the size needed to fit the text
@@ -34,8 +28,6 @@
 
 
 <WTasks>:
-    refreshing: False
-
     canvas.before:
         Color:
             rgba: .5, .7, 0, 1
@@ -71,8 +63,6 @@
 
 
 <WSchedule>:
-    refreshing: False
-
     canvas.before:
         Color:
             rgba: .5, .7, 0, 1
