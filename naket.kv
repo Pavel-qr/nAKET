@@ -1,13 +1,11 @@
 #:kivy 2.1.0
 
-<TaskLabel@Label>:
-
+<WrapLabel@Label>:
     size_hint_y: None
     height: self.texture_size[1]  # the size needed to fit the text
     text_size: self.width, None
     halign: 'center'
     valign: 'middle'
-
 
 <AbstractListItem>:
     canvas.before:
@@ -51,13 +49,13 @@
 <WTask>:
     size_hint_y: None
 
-    TaskLabel:
+    WrapLabel:
         id: teacher
         text: 'Teacher' * 15    # for long text tests
-    TaskLabel:
+    WrapLabel:
         id: type
         text: 'Task type'
-    TaskLabel:
+    WrapLabel:
         id: name
         text: 'Task name'
 
@@ -84,12 +82,52 @@
             id: schedule
 
 <WLesson>:
-    Label:
+    WrapLabel:
         id: time
         text: 'time'
-    Label:
+    WrapLabel:
         id: name
         text: 'name'
+
+<WMaterials>:
+    canvas.before:
+        Color:
+            rgba: .5, .7, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        id: materials_scroll
+        do_scroll_x: False
+        do_scroll_y: True
+        on_scroll_y: self.parent.check_update_scroll(self, materials)
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: self.minimum_height
+            id: materials
+
+<WMaterial>:
+    WrapLabel:
+        id: name
+        text: 'name'
+    WrapLabel:
+        id: url
+        text: 'url'
+        markup: True
+        on_ref_press:
+            import webbrowser
+            webbrowser.open(args[1])
+    WrapLabel:
+        id: filelink
+        text: 'filelink'
+        markup: True
+        on_ref_press:
+            import webbrowser
+            webbrowser.open(args[1])
 
 <Naket>:
     swipe_on_scroll: False
@@ -99,3 +137,5 @@
         id: tasks
     WSchedule:
         id: schedule
+    WMaterials:
+        id: materials

@@ -26,9 +26,12 @@ class UpdatableList:
         to_relative = max_pixel / (grid.height - view.height)
         if view.scroll_y > 1.0 + to_relative and not self.refreshing:
             print('refresh')
-            Thread(target=self._do_update).start()
+            self.do_update()
 
-    def _do_update(self):
+    def do_update(self):
+        Thread(target=self._on_update).start()
+
+    def _on_update(self):
         ...
 
 
@@ -45,7 +48,7 @@ class WTasks(MDSwiperItem, UpdatableList):
             for _ in range(15):
                 self.ids.tasks.add_widget(WTask())
 
-    def _do_update(self):
+    def _on_update(self):
         self.refreshing = True
         self.add_tasks(parse.get_tasks(parse.get_session_token(*config.logindata)))
         self.refreshing = False
@@ -63,9 +66,29 @@ class WSchedule(MDSwiperItem, UpdatableList):
             for _ in range(15):
                 self.ids.schedule.add_widget(WLesson())
 
-    def _do_update(self):
+    def _on_update(self):
         self.refreshing = True
         self.add_schedule(parse.get_group_rasp('М156'))
+        self.refreshing = False
+
+
+class WMaterials(MDSwiperItem, UpdatableList):
+    @mainthread
+    def add_materials(self, materials: pd.DataFrame | None = None):
+        self.ids.materials.clear_widgets()
+
+        if materials is not None:
+            materials.apply(
+                lambda material: self.ids.materials.add_widget(WMaterial(material)),
+                axis=1
+            )
+        else:
+            for _ in range(15):
+                self.ids.materials.add_widget(WMaterial())
+
+    def _on_update(self):
+        self.refreshing = True
+        self.add_materials(parse.get_materials(parse.get_session_token(*config.logindata)))
         self.refreshing = False
 
 
@@ -84,6 +107,19 @@ class WLesson(AbstractListItem):
         if lesson is not None:
             self.ids.time.text = number_to_str_time[lesson.number]
             self.ids.name.text = f'{lesson.type}: {lesson.name}'
+
+
+class WMaterial(AbstractListItem):
+    def __init__(self, material: pd.Series | None = None, **kwargs):
+        super(WMaterial, self).__init__()
+        if material is not None:
+            self.ids.name.text = material['name']
+            url = material['url']
+            self.ids.url.text =\
+                f'[color=0000EE][ref={url}]{url}[/ref][/color]' if url is not None else 'Не указан'
+            filelink = material['filelink']
+            self.ids.filelink.text =\
+                f'[color=0000EE][ref={filelink}]{filelink}[/ref][/color]' if filelink is not None else 'Не указан'
 
 
 class Naket(MDSwiper):
