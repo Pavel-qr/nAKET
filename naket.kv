@@ -110,6 +110,16 @@
             height: self.minimum_height
             id: materials
 
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'bottom'
+        MDIconButton:
+            size_hint: None, 0.14
+            width: self.height
+            icon: 'arrow-left-bold-outline'
+            on_press: root.current = 'home'
+
+
 <WMaterial>:
     WrapLabel:
         id: name
@@ -130,12 +140,27 @@
             webbrowser.open(args[1])
 
 <Naket>:
-    swipe_on_scroll: False
-    items_spacing: 0
+    Screen:
+        name: 'home'
 
-    WTasks:
-        id: tasks
-    WSchedule:
-        id: schedule
-    WMaterials:
-        id: materials
+        MDSwiper:
+            swipe_on_scroll: False
+            items_spacing: 0
+
+            WTasks:
+                id: tasks
+            WSchedule:
+                id: schedule
+            MDSwiperItem:
+                id: other
+
+                BoxLayout:
+                    Button:
+                        text: 'materials'
+                        on_press: root.current = 'materials'
+
+    Screen:
+        name: 'materials'
+
+        WMaterials:
+            id: materials

@@ -5,8 +5,11 @@ import pandas as pd
 from kivy import require
 from kivy.clock import mainthread
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd.uix.swiper import MDSwiperItem, MDSwiper
+from kivy.uix.screenmanager import Screen, ScreenManager
+
 
 import config
 import parse
@@ -72,7 +75,7 @@ class WSchedule(MDSwiperItem, UpdatableList):
         self.refreshing = False
 
 
-class WMaterials(MDSwiperItem, UpdatableList):
+class WMaterials(Screen, UpdatableList):
     @mainthread
     def add_materials(self, materials: pd.DataFrame | None = None):
         self.ids.materials.clear_widgets()
@@ -115,14 +118,14 @@ class WMaterial(AbstractListItem):
         if material is not None:
             self.ids.name.text = material['name']
             url = material['url']
-            self.ids.url.text =\
+            self.ids.url.text = \
                 f'[color=0000EE][ref={url}]{url}[/ref][/color]' if url is not None else 'Не указан'
             filelink = material['filelink']
-            self.ids.filelink.text =\
+            self.ids.filelink.text = \
                 f'[color=0000EE][ref={filelink}]{filelink}[/ref][/color]' if filelink is not None else 'Не указан'
 
 
-class Naket(MDSwiper):
+class Naket(ScreenManager):
     ...
 
 
