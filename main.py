@@ -2,14 +2,11 @@ from threading import Thread
 from typing import List
 
 import pandas as pd
-from kivy import require
 from kivy.clock import mainthread
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
-from kivymd.app import MDApp
-from kivymd.uix.swiper import MDSwiperItem, MDSwiper
 from kivy.uix.screenmanager import Screen, ScreenManager
-
+from kivymd.app import MDApp
+from kivymd.uix.swiper import MDSwiperItem
 
 import config
 import parse
@@ -54,6 +51,7 @@ class WTasks(MDSwiperItem, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_tasks(parse.get_tasks(parse.get_session_token(*config.logindata)))
+        # self.add_tasks(None)
         self.refreshing = False
 
 
@@ -71,6 +69,7 @@ class WSchedule(MDSwiperItem, UpdatableList):
 
     def _on_update(self):
         self.refreshing = True
+        # self.add_schedule(None)
         self.add_schedule(parse.get_group_rasp('М156'))
         self.refreshing = False
 
@@ -92,6 +91,7 @@ class WMaterials(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_materials(parse.get_materials(parse.get_session_token(*config.logindata)))
+        # self.add_materials(None)
         self.refreshing = False
 
 
@@ -136,5 +136,4 @@ class NaketApp(MDApp):
 
 
 if __name__ == '__main__':
-    require('2.1.0')
     NaketApp().run()

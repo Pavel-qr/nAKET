@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-
 number_to_str_time = {
     '1': '(9:30 – 11:00)',
     '2': '(11:10 – 12:40)',

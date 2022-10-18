@@ -117,7 +117,8 @@
             size_hint: None, 0.14
             width: self.height
             icon: 'arrow-left-bold-outline'
-            on_press: root.current = 'home'
+            on_press:
+                root.manager.current = 'home'
 
 
 <WMaterial>:
@@ -157,10 +158,9 @@
                 BoxLayout:
                     Button:
                         text: 'materials'
-                        on_press: root.current = 'materials'
+                        on_press:
+                            root.current = 'materials'
 
-    Screen:
+    WMaterials:
         name: 'materials'
-
-        WMaterials:
-            id: materials
+        id: materials
