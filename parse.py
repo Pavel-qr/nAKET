@@ -1,4 +1,5 @@
 import json
+import logging
 from time import sleep
 from typing import List, Tuple, Optional
 
@@ -84,6 +85,11 @@ def get_group_rasp(group_name: str | int) -> Optional[List[Lesson]]:
                     pass
                 result.append(lesson)
     return result
+
+
+def get_sessions(group_name: str | int):
+    logging.critical('[parse.get_sessions] Not implemented')
+    return None
 
 
 def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) -> pd.DataFrame:

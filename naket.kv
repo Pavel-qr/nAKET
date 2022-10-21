@@ -24,6 +24,16 @@
     spacing: 10
     size_hint_y: None
 
+<ToHomeButton@AnchorLayout>:
+    anchor_x: 'left'
+    anchor_y: 'bottom'
+    MDIconButton:
+        size_hint: None, 0.14
+        width: self.height
+        theme_text_color: 'Custom'
+        text_color: rgba('#E91E63')
+        icon: 'arrow-left-bold-outline'
+        on_release: self.parent.parent.parent.current = 'home'
 
 <WTasks>:
     canvas.before:
@@ -32,9 +42,7 @@
         Rectangle:
             pos: self.pos
             size: self.size
-
     ScrollView:
-        id: tasks_scroll
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, tasks)
@@ -69,7 +77,6 @@
             size: self.size
 
     ScrollView:
-        id: schedule_scroll
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, schedule)
@@ -98,7 +105,6 @@
             size: self.size
 
     ScrollView:
-        id: materials_scroll
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, materials)
@@ -110,16 +116,7 @@
             height: self.minimum_height
             id: materials
 
-    AnchorLayout:
-        anchor_x: 'left'
-        anchor_y: 'bottom'
-        MDIconButton:
-            size_hint: None, 0.14
-            width: self.height
-            icon: 'arrow-left-bold-outline'
-            on_press:
-                root.manager.current = 'home'
-
+    ToHomeButton:
 
 <WMaterial>:
     WrapLabel:
@@ -140,6 +137,39 @@
             import webbrowser
             webbrowser.open(args[1])
 
+<WSessions>:
+    canvas.before:
+        Color:
+            rgba: .5, .7, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+        on_scroll_y: self.parent.check_update_scroll(self, sessions)
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: self.minimum_height
+            id: sessions
+
+    ToHomeButton:
+
+<WSession>:
+    WrapLabel:
+        id: date
+        text: 'date'
+    WrapLabel:
+        id: shift
+        text: 'первая смена'
+    WrapLabel:
+        id: name
+        text: 'name'
+
 <Naket>:
     Screen:
         name: 'home'
@@ -149,18 +179,28 @@
             items_spacing: 0
 
             WTasks:
-                id: tasks
             WSchedule:
-                id: schedule
             MDSwiperItem:
-                id: other
-
                 BoxLayout:
+                    orientation: 'vertical'
+                    Button:
+                        text: 'settings'
+                        on_press: print('Not implemented')
                     Button:
                         text: 'materials'
-                        on_press:
-                            root.current = 'materials'
+                        on_press: root.current = 'materials'
+                    Button:
+                        text: 'sessions'
+                        on_press: root.current = 'sessions'
+                    Button:
+                        text: 'google calendar'
+                        on_press: print('Not implemented')
+                    Button:
+                        text: 'teachers'
+                        on_press: print('Not implemented')
 
     WMaterials:
         name: 'materials'
-        id: materials
+
+    WSessions:
+        name: 'sessions'
