@@ -1,5 +1,6 @@
 import json
 import logging
+from functools import lru_cache
 from time import sleep
 from typing import List, Tuple, Optional
 
@@ -87,7 +88,13 @@ def get_group_rasp(group_name: str | int) -> Optional[List[Lesson]]:
     return result
 
 
+def get_teachers() -> pd.DataFrame:
+    logging.critical('[parse.get_teachers] Not implemented')
+    return None
+
+
 def get_sessions(group_name: str | int):
+    # can't use group_names_to_requests dict: ids not match
     logging.critical('[parse.get_sessions] Not implemented')
     return None
 
@@ -184,6 +191,7 @@ def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'file
         )
 
 
+@lru_cache(maxsize=4)
 def get_session_token(login: str, password: str) -> str:
     with requests.Session() as sess:
         for _ in range(2):  # simulate redirection with session token

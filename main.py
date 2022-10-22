@@ -5,9 +5,9 @@ from typing import List, Final
 import pandas as pd
 from kivy.base import EventLoop
 from kivy.clock import mainthread
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.swiper import MDSwiperItem
 
 import config
@@ -17,7 +17,7 @@ from utils import Lesson, number_to_str_time
 PASS_REAL_VALUES: Final[bool] = True
 
 
-class AbstractListItem(BoxLayout):
+class AbstractListItem(MDBoxLayout):
     ...
 
 
@@ -55,7 +55,9 @@ class WTasks(MDSwiperItem, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_tasks(
-            parse.get_tasks(parse.get_session_token(*config.logindata))
+            parse.get_tasks(parse.get_session_token(
+                *MDApp.get_running_app().get_login_password()
+            ))
             if PASS_REAL_VALUES else None
         )
         self.refreshing = False
@@ -76,7 +78,9 @@ class WSchedule(MDSwiperItem, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_schedule(
-            parse.get_group_rasp('М156')
+            parse.get_group_rasp(
+                MDApp.get_running_app().get_group()
+            )
             if PASS_REAL_VALUES else None
         )
         self.refreshing = False
@@ -99,7 +103,9 @@ class WMaterials(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_materials(
-            parse.get_materials(parse.get_session_token(*config.logindata))
+            parse.get_materials(parse.get_session_token(
+                *MDApp.get_running_app().get_login_password()
+            ))
             if PASS_REAL_VALUES else None
         )
         self.refreshing = False
@@ -122,10 +128,35 @@ class WSessions(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_sessions(
-            parse.get_sessions(parse.get_session_token(*config.logindata))
+            parse.get_sessions(parse.get_session_token(
+                *MDApp.get_running_app().get_login_password()
+            ))
             if PASS_REAL_VALUES else None
         )
         self.refreshing = False
+
+
+class WTeachers(Screen):
+    def __init__(self, **kwargs):
+        super(WTeachers, self).__init__(**kwargs)
+        self.data = parse.get_teachers()
+        self.filter = self.data
+
+    def add_teachers(self):
+        self.ids.teachers.clear_widgets()
+
+        self.data.where(self.filter).apply(
+            lambda teacher: self.ids.teachers.add_widget(WTeacher(teacher)),
+            axis=1
+        )
+
+
+class WSettings(Screen):
+    ...
+
+
+class WCalendarExport(Screen):
+    ...
 
 
 class WTask(AbstractListItem):
@@ -162,6 +193,15 @@ class WSession(AbstractListItem):
     def __init__(self, session: pd.Series | None = None, **kwargs):
         super(WSession, self).__init__(**kwargs)
         if session is not None:
+            logging.critical(f'{self}: Not implemented __init__')
+            ...
+
+
+class WTeacher(AbstractListItem):
+    def __init__(self, teacher: pd.Series | None = None, **kwargs):
+        super(WTeacher, self).__init__(**kwargs)
+        if teacher is not None:
+            logging.critical(f'{self}: Not implemented __init__')
             ...
 
 
@@ -171,13 +211,35 @@ class Naket(ScreenManager):
 
 class NaketApp(MDApp):
     def build(self):
+        # self.theme_cls.theme_style = "Dark"  # change background to black
         self.title = 'nAKET'
-        return Naket()
+        self.root = Naket()
+        self.set_group('М156')
+        self.set_login_password(*config.logindata)
+        for screen_id in 'tasks', 'schedule', 'sessions', 'materials':
+            self.root.ids[screen_id].do_update()
+        return self.root
 
     def on_start(self):
         EventLoop.window.bind(on_keyboard=self._keyboard_handler)
 
-    def _keyboard_handler(self, window, key, *args):
+    def get_login_password(self):
+        return (
+            self.root.ids.settings.ids.login.text,
+            self.root.ids.settings.ids.password.text
+        )
+
+    def set_login_password(self, login, password):
+        self.root.ids.settings.ids.login.text = login
+        self.root.ids.settings.ids.password.text = password
+
+    def get_group(self):
+        return self.root.ids.settings.ids.group.text
+
+    def set_group(self, group):
+        self.root.ids.settings.ids.group.text = group
+
+    def _keyboard_handler(self, _, key, *_s):
         if key in (27, 1001):
             self.root.current = 'home'
             return True

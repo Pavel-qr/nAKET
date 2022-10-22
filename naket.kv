@@ -7,6 +7,8 @@
     halign: 'center'
     valign: 'middle'
 
+<MyButton@Button>:
+
 <AbstractListItem>:
     canvas.before:
         Color:
@@ -20,9 +22,10 @@
             width: 2.4
             rectangle: self.x, self.y, self.width, self.height
 
+    adaptive_height: True
+    minimum_height: dp(150)
     orientation: 'vertical'
     spacing: 10
-    size_hint_y: None
 
 <ToHomeButton@AnchorLayout>:
     anchor_x: 'left'
@@ -36,22 +39,15 @@
         on_release: self.parent.parent.parent.current = 'home'
 
 <WTasks>:
-    canvas.before:
-        Color:
-            rgba: .5, .7, 0, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
     ScrollView:
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, tasks)
 
-        BoxLayout:
+        MDBoxLayout:
+            adaptive_height: True
             orientation: 'vertical'
             spacing: 10
-            size_hint_y: None
-            height: self.minimum_height
             id: tasks
 
 <WTask>:
@@ -67,25 +63,16 @@
         id: name
         text: 'Task name'
 
-
 <WSchedule>:
-    canvas.before:
-        Color:
-            rgba: .5, .7, 0, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
     ScrollView:
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, schedule)
 
-        BoxLayout:
+        MDBoxLayout:
+            adaptive_height: True
             orientation: 'vertical'
             spacing: 10
-            size_hint_y: None
-            height: self.minimum_height
             id: schedule
 
 <WLesson>:
@@ -97,23 +84,15 @@
         text: 'name'
 
 <WMaterials>:
-    canvas.before:
-        Color:
-            rgba: .5, .7, 0, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
     ScrollView:
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, materials)
 
-        BoxLayout:
+        MDBoxLayout:
+            adaptive_height: True
             orientation: 'vertical'
             spacing: 10
-            size_hint_y: None
-            height: self.minimum_height
             id: materials
 
     ToHomeButton:
@@ -138,23 +117,15 @@
             webbrowser.open(args[1])
 
 <WSessions>:
-    canvas.before:
-        Color:
-            rgba: .5, .7, 0, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
     ScrollView:
         do_scroll_x: False
         do_scroll_y: True
         on_scroll_y: self.parent.check_update_scroll(self, sessions)
 
-        BoxLayout:
+        MDBoxLayout:
+            adaptive_height: True
             orientation: 'vertical'
             spacing: 10
-            size_hint_y: None
-            height: self.minimum_height
             id: sessions
 
     ToHomeButton:
@@ -170,6 +141,59 @@
         id: name
         text: 'name'
 
+<WTeachers>:
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDTopAppBar:
+            title: 'filter'
+            MDTextField:
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MDBoxLayout:
+                adaptive_height: True
+                orientation: 'vertical'
+                spacing: 10
+                id: teachers
+
+    ToHomeButton:
+
+<WCalendarExport>:
+    # Type here
+
+    ToHomeButton:
+
+<WSettings>:
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: dp(48)
+            spacing: dp(15)
+
+            MDTextField:
+                id: login
+                hint_text: 'login'
+                mode: 'rectangle'
+                password: True
+
+            MDTextField:
+                id: password
+                hint_text: 'password'
+                mode: 'rectangle'
+                password: True
+
+            MDTextField:
+                id: group
+                hint_text: 'group number'
+                mode: 'rectangle'
+                password: True
+
+    ToHomeButton:
+
 <Naket>:
     Screen:
         name: 'home'
@@ -179,28 +203,44 @@
             items_spacing: 0
 
             WTasks:
+                id: tasks
             WSchedule:
+                id: schedule
             MDSwiperItem:
-                BoxLayout:
+                MDBoxLayout:
                     orientation: 'vertical'
-                    Button:
+
+                    MyButton:
                         text: 'settings'
-                        on_press: print('Not implemented')
-                    Button:
+                        on_press: root.current = 'settings'
+                    MyButton:
                         text: 'materials'
                         on_press: root.current = 'materials'
-                    Button:
+                    MyButton:
                         text: 'sessions'
                         on_press: root.current = 'sessions'
-                    Button:
+                    MyButton:
                         text: 'google calendar'
-                        on_press: print('Not implemented')
-                    Button:
+                        on_press: root.current = 'calendar_export'
+                    MyButton:
                         text: 'teachers'
-                        on_press: print('Not implemented')
+                        on_press: root.current = 'teachers'
 
     WMaterials:
+        id: materials
         name: 'materials'
 
     WSessions:
+        id: sessions
         name: 'sessions'
+
+    WSettings:
+        id: settings
+        name: 'settings'
+
+    WTeachers:
+        id: teachers
+        name: 'teachers'
+
+    WCalendarExport:
+        name: 'calendar_export'
