@@ -1,6 +1,8 @@
+import datetime
 import json
 import logging
 from functools import lru_cache
+from pprint import pprint
 from time import sleep
 from typing import List, Tuple, Optional
 
@@ -9,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from config import logindata
-from utils import Auditorium, WeekDay, Lesson, Week
+from utils import Auditorium, WeekDay, Lesson, Week, Session, month_to_int
 
 groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
@@ -93,10 +95,62 @@ def get_teachers() -> pd.DataFrame:
     return None
 
 
-def get_sessions(group_name: str | int):
-    # can't use group_names_to_requests dict: ids not match
-    logging.critical('[parse.get_sessions] Not implemented')
-    return None
+sess_groups_names_to_requests = dict()
+sess_teachers_names_to_requests = dict()
+
+
+def update_session_dicts() -> bool:
+    global sess_groups_names_to_requests
+    global sess_teachers_names_to_requests
+    try:
+        document = \
+            BeautifulSoup(requests.get('https://raspsess.guap.ru/').text, 'lxml').select_one('.rasp').select_one(
+                '.form')
+        sess_groups_names_to_requests = {
+            el.text: el.attrs['value']
+            for el in document.select_one('span:-soup-contains("группа:")').select('option')
+        }
+        sess_teachers_names_to_requests = {
+            el.text: el.attrs['value']
+            for el in document.select_one('span:-soup-contains("преподаватель:")').select('option')
+        }
+        return True
+    except IndexError:
+        return False
+
+
+def get_sessions(group_name: str | int) -> Optional[List[Session]]:
+    group_name = str(group_name)
+    for i in range(3):  # tries count
+        if group_name in sess_groups_names_to_requests:
+            break
+        if not update_session_dicts():
+            sleep(1)
+            print('Wait')
+    else:
+        return None  # Internet errors or group_name invalid
+    children = \
+        BeautifulSoup(requests.get(f'https://raspsess.guap.ru/?g={sess_groups_names_to_requests[group_name]}').text,
+                      'lxml').select_one('.result').children
+    # next(children)  # skip legend with div tag
+    result = []
+    for child in children:
+        # h3 is week day, h4 is shift
+        if child.name == 'div':
+            child: Tag
+            date = child.find_previous_sibling('h3').text.split()
+            session = Session(
+                name=child.select_one('span').text.split(' – ')[1].strip(),
+                date=datetime.date(datetime.date.today().year, month_to_int.get(date[1], 1), int(date[0])),
+                number=child.find_previous_sibling('h4').text.split()[0],
+                auditorium=Auditorium(
+                    address=child.select('span>em')[0].text.split()[0].replace(' – ', ''),
+                    number=child.select_one('span>em').text.split()[1].replace('ауд. ', '')
+                ),
+                teacher=child.select_one('div').select_one('.preps').select_one('a').text,
+            )
+            result.append(session)
+    return result
 
 
 def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) -> pd.DataFrame:
@@ -203,7 +257,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    print(get_materials(get_session_token(*logindata)).to_string())
+    print(get_sessions('4142'))
     ...
 
 

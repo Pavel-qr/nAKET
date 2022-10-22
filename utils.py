@@ -1,7 +1,9 @@
 import datetime
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Optional, Final
+
+PASS_REAL_VALUES: Final[bool] = True
 
 number_to_str_time = {
     '1': '(9:30 – 11:00)',
@@ -71,6 +73,26 @@ class Lesson:
     teachers: Optional[list[str]]
     groups: Optional[list[str]]
     week: Week
+
+
+# class Shift(Enum):
+#     first = '1 смена'
+#     second = '2 смена'
+#
+
+month_to_int = {
+    'июня': 6
+}
+
+
+@dataclass
+class Session:
+    name: str
+    date: datetime.date
+    number: str
+    # shift: Shift
+    auditorium: Auditorium
+    teacher: str
 
 
 def date_with_time(weekday: int, time: datetime.time):

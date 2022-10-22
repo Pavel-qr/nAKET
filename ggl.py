@@ -1,4 +1,5 @@
 import datetime
+from pprint import pprint
 from typing import List
 
 import googleapiclient
@@ -6,7 +7,6 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 import config
-from parse import get_group_rasp
 from utils import Lesson, week_days, number_to_time, Week, date_with_time
 
 colors = {
@@ -59,7 +59,10 @@ class GoogleCalendar:
             'colorId': color_id,
             'reminders': {
                 'useDefault': False,
-                'overrides': [{'method': 'popup', 'minutes': 15}]
+                'overrides': [
+                    # {'method': 'email', 'minutes': 24 * 60},
+                    {'method': 'popup', 'minutes': 15},
+                ],
             },
             'recurrence': [f'RRULE:FREQ=WEEKLY;INTERVAL={interval};UNTIL=20230101T170000Z']
         }
@@ -69,7 +72,16 @@ class GoogleCalendar:
     def create_event(self, event: dict):
         e = self.service.events().insert(calendarId=self.calendarId, sendNotifications=True,
                                          body=event).execute()
-        return 'Event created: %s' % (e.get('id'))
+        return e
+
+    # создание события в календаре
+    def create_calendar(self, name: str):
+        calendar = {
+            'summary': name,
+            'timeZone': 'Europe/Moscow',
+        }
+        c = self.service.calendars().insert(body=calendar).execute()
+        return c
 
     # вывод списка из десяти предстоящих событий
     def get_events_list(self, max_results=250):
@@ -93,6 +105,7 @@ class GoogleCalendar:
 
     def upload_events(self, lessons: List[Lesson]):
         is_this_week_up = datetime.datetime.today().isocalendar().week % 2 != 0
+        c = self.create_calendar('SUAI')
         for lesson in lessons:
             start = date_with_time(week_days[lesson.day], number_to_time[lesson.number][0])
             end = date_with_time(week_days[lesson.day], number_to_time[lesson.number][1])
@@ -102,12 +115,45 @@ class GoogleCalendar:
             elif is_this_week_up == (lesson.week is Week.dn):
                 start += datetime.timedelta(7)
                 end += datetime.timedelta(7)
-            a = self.create_event(self.create_event_dict(
+            e = self.create_event(self.create_event_dict(
                 lesson.name, str(lesson.auditorium), start.isoformat(), end.isoformat(), interval,
                 type_to_color.get(lesson.type, '9'))
             )
-            print(a)
+            print(f'Event created: {e.get("id")}')
+            print(e)
+
+    def test(self):
+        page_token = None
+        while True:
+            calendar_list = self.service.calendarList().list(pageToken=page_token).execute()
+            for calendar_list_entry in calendar_list['items']:
+                print(calendar_list_entry['summary'])
+            page_token = calendar_list.get('nextPageToken')
+            if not page_token:
+                break
+        # return
+
+        # c = self.create_calendar('SUAI22')
+        # pprint(c)
+        calendarId = '3pgm8ivioavagnovofjv2am6qk@group.calendar.google.com'
+        acl = self.service.acl().list(calendarId=calendarId).execute()
+
+        for rule in acl['items']:
+            print('%s: %s' % (rule['id'], rule['role']))
+
+        rule = {
+            'scope': {
+                'type': 'user',
+                'value': '79516747741p@gmail.com',
+            },
+            'role': 'owner'
+        }
+
+        # created_rule = self.service.acl().insert(calendarId=calendarId, body=rule).execute()
+        # pprint(created_rule)
 
 
 if __name__ == '__main__':
-    GoogleCalendar(config.calendar_id).upload_events(get_group_rasp(4142))
+    'ajsmbuus80alnr8rsvcvucpv50@group.calendar.google.com'
+    GoogleCalendar(None).test()
+    # GoogleCalendar(config.calendar_id).test()
