@@ -41,7 +41,7 @@ class WSessions(Screen, UpdatableList):
 
         if sessions is not None:
             for session in sessions:
-                self.ids.schedule.add_widget(WSession(session))
+                self.ids.sessions.add_widget(WSession(session))
         else:
             for _ in range(15):
                 self.ids.sessions.add_widget(WSession())
@@ -49,9 +49,9 @@ class WSessions(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_sessions(
-            parse.get_sessions(parse.get_session_token(
-                *MDApp.get_running_app().get_login_password()
-            ))
+            parse.get_sessions(
+                MDApp.get_running_app().get_group()
+            )
             if PASS_REAL_VALUES else None
         )
         self.refreshing = False

@@ -2,7 +2,7 @@ import logging
 
 import pandas as pd
 
-from utils import number_to_str_time, Lesson
+from utils import number_to_str_time, Lesson, Session
 from widgets.abstract import AbstractListItem
 
 
@@ -37,11 +37,15 @@ class WMaterial(AbstractListItem):
 
 
 class WSession(AbstractListItem):
-    def __init__(self, session: pd.Series | None = None, **kwargs):
+    def __init__(self, session: Session | None = None, **kwargs):
         super(WSession, self).__init__(**kwargs)
         if session is not None:
-            logging.critical(f'{self}: Not implemented __init__')
-            ...
+            self.ids.date.text = session.date.strftime('%d %b')
+            self.ids.shift.text = \
+                ('1 смена (10:00)', '2 смена (14:00)')[session.number - 1]
+            self.ids.name.text = session.name
+            self.ids.address.text = str(session.auditorium)
+            self.ids.teacher.text = session.teacher
 
 
 class WTeacher(AbstractListItem):
@@ -50,5 +54,3 @@ class WTeacher(AbstractListItem):
         if teacher is not None:
             logging.critical(f'{self}: Not implemented __init__')
             ...
-
-

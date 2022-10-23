@@ -10,7 +10,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from config import logindata
 from utils import Auditorium, WeekDay, Lesson, Week, Session, month_to_int
 
 groups_names_to_requests = dict()
@@ -142,7 +141,7 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
             session = Session(
                 name=child.select_one('span').text.split(' – ')[0].strip(),
                 date=datetime.date(datetime.date.today().year, month_to_int.get(date[1], 1), int(date[0])),
-                number=child.find_previous_sibling('h4').text.split()[0],
+                number=int(child.find_previous_sibling('h4').text.split()[0]),
                 auditorium=Auditorium(
                     address=child.select('span>em')[0].text.split('. ')[0].replace(' – ', ''),
                     number=child.select_one('span>em').text.split('. ')[1]

@@ -75,11 +75,6 @@ class Lesson:
     week: Week
 
 
-# class Shift(Enum):
-#     first = '1 смена'
-#     second = '2 смена'
-#
-
 month_to_int = {
     'июня': 6
 }
@@ -89,8 +84,7 @@ month_to_int = {
 class Session:
     name: str
     date: datetime.date
-    number: str
-    # shift: Shift
+    number: int
     auditorium: Auditorium
     teacher: str
 

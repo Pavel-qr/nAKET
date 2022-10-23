@@ -2,8 +2,8 @@ from kivy.base import EventLoop
 from kivy.uix.screenmanager import ScreenManager
 
 import config
+from widgets.other import *
 from widgets.primary import *
-from widgets.settings import *
 
 
 class Naket(ScreenManager):
@@ -38,12 +38,6 @@ class NaketApp(MDApp):
         return self.root.ids.settings.ids.group.text
 
     def set_group(self, group):
-        print(self.root)
-        print(self.root.ids)
-        print(self.root.ids.settings)
-        print(self.root.ids.settings.ids)
-        print(self.root.ids.settings.ids.group)
-        print(self.root.ids.settings.ids.group.text)
         self.root.ids.settings.ids.group.text = group
 
     def _keyboard_handler(self, _, key, *_s):
