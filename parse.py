@@ -140,12 +140,12 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
             child: Tag
             date = child.find_previous_sibling('h3').text.split()
             session = Session(
-                name=child.select_one('span').text.split(' – ')[1].strip(),
+                name=child.select_one('span').text.split(' – ')[0].strip(),
                 date=datetime.date(datetime.date.today().year, month_to_int.get(date[1], 1), int(date[0])),
                 number=child.find_previous_sibling('h4').text.split()[0],
                 auditorium=Auditorium(
-                    address=child.select('span>em')[0].text.split()[0].replace(' – ', ''),
-                    number=child.select_one('span>em').text.split()[1].replace('ауд. ', '')
+                    address=child.select('span>em')[0].text.split('. ')[0].replace(' – ', ''),
+                    number=child.select_one('span>em').text.split('. ')[1]
                 ),
                 teacher=child.select_one('div').select_one('.preps').select_one('a').text,
             )
@@ -257,7 +257,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    print(get_sessions('4142'))
+    pprint(get_sessions('4142'))
     ...
 
 
