@@ -3,13 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-possible_primary_palettes = (
-    'Red', 'Pink', 'Purple', 'DeepPurple', 'Indigo',
-    'Blue', 'LightBlue', 'Cyan', 'Teal', 'Green',
-    'LightGreen', 'Lime', 'Yellow', 'Amber', 'Orange',
-    'DeepOrange', 'Brown', 'Gray', 'BlueGray'
-)  # maybe it can be defined dynamically
-
 number_to_str_time = {
     '1': '(9:30 – 11:00)',
     '2': '(11:10 – 12:40)',
