@@ -4,7 +4,8 @@ from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
 
 import parse
-from utils import Session, PASS_REAL_VALUES
+from config import PASS_REAL_VALUES
+from utils import Session
 from widgets.abstract import UpdatableList
 from widgets.items import WSession, WTeacher, WMaterial
 

@@ -4,7 +4,8 @@ from kivymd.app import MDApp
 from kivymd.uix.swiper import MDSwiperItem
 
 import parse
-from utils import Lesson, PASS_REAL_VALUES
+from config import PASS_REAL_VALUES
+from utils import Lesson
 from widgets.abstract import UpdatableList
 from widgets.items import WLesson, WTask
 

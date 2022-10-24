@@ -55,7 +55,7 @@ def get_group_rasp(group_name: str | int) -> Optional[List[Lesson]]:
         if child.name == 'div':
             if child.find_previous_sibling('h3').text == 'Вне сетки расписания':
                 continue
-                # todo add this
+                # todo add off grid schedule items
             else:
                 if child.select('.dn'):
                     week = Week.dn

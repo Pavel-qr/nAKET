@@ -12,7 +12,11 @@ class Naket(ScreenManager):
 
 class NaketApp(MDApp):
     def build(self):
-        # self.theme_cls.theme_style = "Dark"  # change background to black
+        # theming
+        self.theme_cls.theme_style_switch_animation = True  # not working?!
+        self.theme_cls.theme_style = config.default_theme  # 'Light' or 'Dark'
+        self.theme_cls.primary_palette = config.default_primary_palette  # e.g. 'Orange'
+
         self.title = 'nAKET'
         self.root = Naket()
         self.set_group('4142')

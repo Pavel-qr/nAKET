@@ -1,29 +1,22 @@
 #:kivy 2.1.0
+#:import pos_pp utils.possible_primary_palettes
+#:import choice random.choice
+#:import def_pp config.default_primary_palette
 
-<WrapLabel@Label>:
+<WrapLabel@Label>:  # todo inherit from MDLabel and fix colors on Light theme
     size_hint_y: None
     height: self.texture_size[1]  # the size needed to fit the text
     text_size: self.width, None
     halign: 'center'
     valign: 'middle'
 
-<MyButton@Button>:
+<OthersButton@MDRoundFlatButton>:
+    pos_hint: {"center_x": .5}
+    width: self.parent.width    # to fit screen
 
 <AbstractListItem>:
-    canvas.before:
-        Color:
-            rgba: 0, 0, 0, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        Color:
-            rgba: .1, .1, .1, 1
-        Line:
-            width: 2.4
-            rectangle: self.x, self.y, self.width, self.height
-
+    md_bg_color: app.theme_cls.primary_dark  # for white text readability
     adaptive_height: True
-    minimum_height: dp(150)
     orientation: 'vertical'
     spacing: 10
 
@@ -34,7 +27,10 @@
         size_hint: None, 0.14
         width: self.height
         theme_text_color: 'Custom'
-        text_color: rgba('#E91E63')
+        text_color:
+            rgba('#000000') if \
+            app.theme_cls.theme_style == 'Light' else \
+            rgba('#FFFFFF')  # intents not allowed here
         icon: 'arrow-left-bold-outline'
         on_release: self.parent.parent.parent.current = 'home'
 
@@ -198,6 +194,36 @@
                 mode: 'rectangle'
                 password: True
 
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: dp(30)
+
+                MDSwitch:
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                    width: dp(50)
+                    active: app.theme_cls.theme_style == 'Dark'
+                    on_active:
+                        theme_style = ('Light', 'Dark')[args[1]]
+                        # todo set default_theme to config or smth
+                        app.theme_cls.theme_style = theme_style
+
+                MDLabel:
+                    halign: 'left'
+                    text: 'enable dark theme'
+
+            MDTextField:
+                id: primary_palette
+                hint_text: 'primary palette'
+                mode: 'rectangle'
+                text: def_pp
+                helper_text: ', '.join(choice(pos_pp) for _ in range(3)) + ' etc...'
+                helper_text_mode: 'persistent'
+                on_text_validate:
+                    if self.text not in pos_pp: \
+                    self.text = choice(pos_pp)  # indent not allowed
+                    # todo set default_primary_palette to config or smth
+                    self.theme_cls.primary_palette = self.text
+
     ToHomeButton:
 
 <Naket>:
@@ -213,24 +239,28 @@
             WSchedule:
                 id: schedule
             MDSwiperItem:
-                MDBoxLayout:
-                    orientation: 'vertical'
+                ScrollView:
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        adaptive_height: True
+                        padding: dp(48)
+                        spacing: dp(15)
 
-                    MyButton:
-                        text: 'settings'
-                        on_press: root.current = 'settings'
-                    MyButton:
-                        text: 'materials'
-                        on_press: root.current = 'materials'
-                    MyButton:
-                        text: 'sessions'
-                        on_press: root.current = 'sessions'
-                    MyButton:
-                        text: 'google calendar'
-                        on_press: root.current = 'calendar_export'
-                    MyButton:
-                        text: 'teachers'
-                        on_press: root.current = 'teachers'
+                        OthersButton:
+                            text: 'settings'
+                            on_press: root.current = 'settings'
+                        OthersButton:
+                            text: 'materials'
+                            on_press: root.current = 'materials'
+                        OthersButton:
+                            text: 'sessions'
+                            on_press: root.current = 'sessions'
+                        OthersButton:
+                            text: 'google calendar'
+                            on_press: root.current = 'calendar_export'
+                        OthersButton:
+                            text: 'teachers'
+                            on_press: root.current = 'teachers'
 
     WMaterials:
         id: materials
