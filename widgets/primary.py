@@ -26,10 +26,10 @@ class WTasks(MDSwiperItem, UpdatableList):
         self.refreshing = True
         self.add_tasks(
             parse.get_tasks(parse.get_session_token(
-                MDApp.get_running_app().get_login(),
-                MDApp.get_running_app().get_password()
+                MDApp.get_running_app().login,
+                MDApp.get_running_app().password
             ))
-            if MDApp.get_running_app().get_pass_real_values()
+            if MDApp.get_running_app().pass_real_values
             else None
         )
         self.refreshing = False
@@ -51,9 +51,9 @@ class WSchedule(MDSwiperItem, UpdatableList):
         self.refreshing = True
         self.add_schedule(
             parse.get_group_rasp(
-                MDApp.get_running_app().get_group()
+                MDApp.get_running_app().group
             )
-            if MDApp.get_running_app().get_pass_real_values()
+            if MDApp.get_running_app().pass_real_values
             else None
         )
         self.refreshing = False

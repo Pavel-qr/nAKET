@@ -22,6 +22,7 @@ class NaketApp(MDApp):
         if not os.path.exists(config_path):
             with open(file=config_path, mode='w'):
                 pass  # create empty file
+            # add empty fields to avoid key errors
             empty_config = JsonStore(config_path)
             empty_config.put('credentials', login='', password='')
             empty_config.put('data', pass_real_values=True)
@@ -33,8 +34,8 @@ class NaketApp(MDApp):
     def build(self):
         # theming
         self.theme_cls.theme_style_switch_animation = True  # not working?!
-        self.theme_cls.theme_style = self.get_default_theme()  # 'Light' or 'Dark'
-        self.theme_cls.primary_palette = self.get_default_primary_palette()  # e.g. 'Orange'
+        self.theme_cls.theme_style = self.default_theme  # 'Light' or 'Dark'
+        self.theme_cls.primary_palette = self.default_primary_palette  # e.g. 'Orange'
 
         self.title = 'nAKET'
         self.root = Naket()
@@ -45,42 +46,53 @@ class NaketApp(MDApp):
     def on_start(self):
         EventLoop.window.bind(on_keyboard=self._keyboard_handler)
 
-    def get_default_primary_palette(self):
+    @property
+    def default_primary_palette(self):
         return self.store.get('theming')['default_primary_palette']
 
-    def set_default_primary_palette(self, default_primary_palette):
+    @default_primary_palette.setter
+    def default_primary_palette(self, default_primary_palette):
         # ∨∨∨ todo find a way to purposefully change the key or change the structure of the file
         self.store.put('theming', default_primary_palette=default_primary_palette,
-                       default_theme=self.get_default_theme())
+                       default_theme=self.default_theme)
 
-    def get_default_theme(self):
+    @property
+    def default_theme(self):
         return self.store.get('theming')['default_theme']
 
-    def set_default_theme(self, default_theme):
+    @default_theme.setter
+    def default_theme(self, default_theme):
         # ∨∨∨ todo find a way to purposefully change the key or change the structure of the file
         self.store.put('theming', default_theme=default_theme,
-                       default_primary_palette=self.get_default_primary_palette())
+                       default_primary_palette=self.default_primary_palette)
 
-    def get_login(self):
+    @property
+    def login(self):
         return self.store.get('credentials')['login']
 
-    def set_login(self, login):
-        self.store.put('credentials', login=login, password=self.get_password())
+    @login.setter
+    def login(self, login):
+        self.store.put('credentials', login=login, password=self.password)
 
-    def get_password(self):
+    @property
+    def password(self):
         return self.store.get('credentials')['password']
 
-    def set_password(self, password):
-        self.store.put('credentials', password=password, login=self.get_login())
+    @password.setter
+    def password(self, password):
+        self.store.put('credentials', password=password, login=self.login)
 
-    def get_group(self):
+    @property
+    def group(self):
         return self.store.get('group')['group']
 
-    def set_group(self, group):
+    @group.setter
+    def group(self, group):
         # todo change file structure
         self.store.put('group', group=group)
 
-    def get_pass_real_values(self):
+    @property
+    def pass_real_values(self):
         return self.store.get('data')['pass_real_values']
 
     def _keyboard_handler(self, _, key, *_s):

@@ -180,24 +180,24 @@
                 hint_text: 'login'
                 mode: 'rectangle'
                 password: True
-                text: app.get_login()
-                on_text_validate: app.set_login(self.text)
+                text: app.login
+                on_text_validate: app.login = self.text
 
             MDTextField:
                 id: password
                 hint_text: 'password'
                 mode: 'rectangle'
                 password: True
-                text: app.get_password()
-                on_text_validate: app.set_password(self.text)
+                text: app.password
+                on_text_validate: app.password = self.text
 
             MDTextField:
                 id: group
                 hint_text: 'group number'
                 mode: 'rectangle'
                 password: True
-                text: app.get_group()
-                on_text_validate: app.set_group(self.text)
+                text: app.group
+                on_text_validate: app.group = self.text
 
             MDBoxLayout:
                 orientation: 'horizontal'
@@ -209,7 +209,7 @@
                     active: app.theme_cls.theme_style == 'Dark'
                     on_active:
                         theme_style = ('Light', 'Dark')[args[1]]
-                        app.set_default_theme(theme_style)
+                        app.default_theme = theme_style
                         app.theme_cls.theme_style = theme_style
 
                 MDLabel:
@@ -220,13 +220,13 @@
                 id: primary_palette
                 hint_text: 'primary palette'
                 mode: 'rectangle'
-                text: app.store.get('theming')['default_primary_palette']
+                text: app.default_primary_palette
                 helper_text: ', '.join(choice(pos_pp) for _ in range(3)) + ' etc...'
                 helper_text_mode: 'persistent'
                 on_text_validate:
                     if self.text not in pos_pp: \
                     self.text = choice(pos_pp)  # indent not allowed
-                    app.set_default_primary_palette(self.text)
+                    app.default_primary_palette = self.text
                     self.theme_cls.primary_palette = self.text
 
     ToHomeButton:
