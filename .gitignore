@@ -1,6 +1,8 @@
 # Default ignored files
 .idea
 __pycache__
+config.json
+# ∨∨∨ Remove this file
 config.py
 credentials.json
 client_secret.json

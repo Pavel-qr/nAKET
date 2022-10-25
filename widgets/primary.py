@@ -4,7 +4,6 @@ from kivymd.app import MDApp
 from kivymd.uix.swiper import MDSwiperItem
 
 import parse
-from config import PASS_REAL_VALUES
 from utils import Lesson
 from widgets.abstract import UpdatableList
 from widgets.items import WLesson, WTask
@@ -27,9 +26,11 @@ class WTasks(MDSwiperItem, UpdatableList):
         self.refreshing = True
         self.add_tasks(
             parse.get_tasks(parse.get_session_token(
-                *MDApp.get_running_app().get_login_password()
+                MDApp.get_running_app().get_login(),
+                MDApp.get_running_app().get_password()
             ))
-            if PASS_REAL_VALUES else None
+            if MDApp.get_running_app().get_pass_real_values()
+            else None
         )
         self.refreshing = False
 
@@ -52,6 +53,7 @@ class WSchedule(MDSwiperItem, UpdatableList):
             parse.get_group_rasp(
                 MDApp.get_running_app().get_group()
             )
-            if PASS_REAL_VALUES else None
+            if MDApp.get_running_app().get_pass_real_values()
+            else None
         )
         self.refreshing = False

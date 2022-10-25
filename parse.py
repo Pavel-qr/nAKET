@@ -152,7 +152,8 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
     return result
 
 
-def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) -> pd.DataFrame:
+def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) \
+        -> Optional[pd.DataFrame]:
     """
     all fields are strings or nulls
     get-student-tasksdictionaries: {
@@ -198,10 +199,11 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
     """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
+        response = sess.post(url='https://pro.guap.ru/get-student-tasksdictionaries/')
+        if response.status_code == 401:
+            return None  # Invalid login/password
         json_obj = json.loads(
-            sess.post(
-                url='https://pro.guap.ru/get-student-tasksdictionaries/'
-            ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            response.content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -209,7 +211,7 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
                   json_obj['tasks']))
 
 
-def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'filelink')) -> pd.DataFrame:
+def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'filelink')) -> Optional[pd.DataFrame]:
     """
     getstudentmaterials: {
         materials: [
@@ -229,10 +231,11 @@ def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'file
     """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
+        response = sess.post(url='https://pro.guap.ru/getstudentmaterials/')
+        if response.status_code == 401:
+            return None  # Invalid login/password
         json_obj = json.loads(
-            sess.post(
-                url='https://pro.guap.ru/getstudentmaterials/'
-            ).content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            response.content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
             strict=False)
         return pd.DataFrame(
             columns=labels,

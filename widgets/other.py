@@ -4,7 +4,6 @@ from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
 
 import parse
-from config import PASS_REAL_VALUES
 from utils import Session
 from widgets.abstract import UpdatableList
 from widgets.items import WSession, WTeacher, WMaterial
@@ -28,9 +27,11 @@ class WMaterials(Screen, UpdatableList):
         self.refreshing = True
         self.add_materials(
             parse.get_materials(parse.get_session_token(
-                *MDApp.get_running_app().get_login_password()
+                MDApp.get_running_app().get_login(),
+                MDApp.get_running_app().get_password()
             ))
-            if PASS_REAL_VALUES else None
+            if MDApp.get_running_app().get_pass_real_values()
+            else None
         )
         self.refreshing = False
 
@@ -53,7 +54,8 @@ class WSessions(Screen, UpdatableList):
             parse.get_sessions(
                 MDApp.get_running_app().get_group()
             )
-            if PASS_REAL_VALUES else None
+            if MDApp.get_running_app().get_pass_real_values()
+            else None
         )
         self.refreshing = False
 
