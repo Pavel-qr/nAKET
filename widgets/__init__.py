@@ -1,6 +1,6 @@
 import os
 
-# from cryptography.fernet import Fernet    # todo encrypt config.json file
+from cryptography.fernet import Fernet
 from kivy.base import EventLoop
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager
@@ -20,16 +20,9 @@ class NaketApp(MDApp):
         self.user_data_dir_dev = '.'
         config_path = os.path.join(self.user_data_dir_dev, 'config.json')
         if not os.path.exists(config_path):
-            with open(file=config_path, mode='w'):
-                pass  # create empty file
-            # add empty fields to avoid key errors
-            empty_config = JsonStore(config_path)
-            empty_config.put('credentials', login='', password='')
-            empty_config.put('data', pass_real_values=True)
-            empty_config.put('group', group='')
-            empty_config.put('theming', default_theme='Dark',
-                             default_primary_palette='DeepOrange')
+            self.empty_config_file(config_path)
         self.store = JsonStore(config_path)
+        self.fernet = Fernet(b'oRZIsmCF4_Zy0ThR4gk-tRG-AAZR7knaBAqeI85dYdo=')  # one key for everyone!
 
     def build(self):
         # theming
@@ -45,6 +38,24 @@ class NaketApp(MDApp):
 
     def on_start(self):
         EventLoop.window.bind(on_keyboard=self._keyboard_handler)
+
+    @staticmethod
+    def empty_config_file(config_path: str):
+        with open(file=config_path, mode='w'):
+            pass  # create empty file
+        # add empty fields to avoid key errors
+        empty_config = JsonStore(config_path)
+        empty_config.put('credentials', login='', password='')
+        empty_config.put('data', pass_real_values=True)
+        empty_config.put('group', group='')
+        empty_config.put('theming', default_theme='Dark',
+                         default_primary_palette='DeepOrange')
+
+    def decrypt(self, string: str) -> str:
+        return self.fernet.decrypt(string.encode()).decode()
+
+    def encrypt(self, string: str) -> str:
+        return self.fernet.encrypt(string.encode()).decode()
 
     @property
     def default_primary_palette(self):
@@ -67,29 +78,40 @@ class NaketApp(MDApp):
                        default_primary_palette=self.default_primary_palette)
 
     @property
-    def login(self):
-        return self.store.get('credentials')['login']
+    def login(self) -> str:
+        return self.decrypt(self.store.get('credentials')['login'])
 
     @login.setter
-    def login(self, login):
-        self.store.put('credentials', login=login, password=self.password)
+    def login(self, login: str):
+        self.store.put(
+            'credentials',
+            login=self.encrypt(login),
+            password=self.encrypt(self.password)
+        )
 
     @property
-    def password(self):
-        return self.store.get('credentials')['password']
+    def password(self) -> str:
+        return self.decrypt(self.store.get('credentials')['password'])
 
     @password.setter
-    def password(self, password):
-        self.store.put('credentials', password=password, login=self.login)
+    def password(self, password: str):
+        self.store.put(
+            'credentials',
+            login=self.encrypt(self.login),
+            password=self.encrypt(password)
+        )
 
     @property
-    def group(self):
-        return self.store.get('group')['group']
+    def group(self) -> str:
+        return self.decrypt(self.store.get('group')['group'])
 
     @group.setter
-    def group(self, group):
+    def group(self, group: str):
         # todo change file structure
-        self.store.put('group', group=group)
+        self.store.put(
+            'group',
+            group=self.encrypt(group)
+        )
 
     @property
     def pass_real_values(self):
