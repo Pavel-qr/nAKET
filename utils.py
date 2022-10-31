@@ -91,3 +91,7 @@ def date_with_time(weekday: int, time: datetime.time):
     date = datetime.datetime.today().replace(hour=time.hour, minute=time.minute, second=time.second, microsecond=0)
     date += datetime.timedelta(days=(weekday - date.weekday()))
     return date
+
+
+def decode_unicode(data: bytes) -> str:
+    return data.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/')

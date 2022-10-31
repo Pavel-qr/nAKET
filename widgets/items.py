@@ -1,5 +1,3 @@
-import logging
-
 import pandas as pd
 
 from utils import number_to_str_time, Lesson, Session
@@ -52,5 +50,8 @@ class WTeacher(AbstractListItem):
     def __init__(self, teacher: pd.Series | None = None, **kwargs):
         super(WTeacher, self).__init__(**kwargs)
         if teacher is not None:
-            logging.critical(f'{self}: Not implemented __init__')
-            ...
+            self.ids.firstname.text = teacher.firstname
+            self.ids.lastname.text = teacher.lastname
+            reslink = f'https://pro.guap.ru{teacher.reslink}'
+            self.ids.reslink.text = \
+                f'[color=0000EE][ref={reslink}]{reslink}[/ref][/color]'

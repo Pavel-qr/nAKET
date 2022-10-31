@@ -1,8 +1,6 @@
 import datetime
 import json
-import logging
 from functools import lru_cache
-from pprint import pprint
 from time import sleep
 from typing import List, Tuple, Optional
 
@@ -10,6 +8,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
+import test
+import utils
 from utils import Auditorium, WeekDay, Lesson, Week, Session, month_to_int
 
 groups_names_to_requests = dict()
@@ -89,9 +89,63 @@ def get_group_rasp(group_name: str | int) -> Optional[List[Lesson]]:
     return result
 
 
-def get_teachers() -> pd.DataFrame:
-    logging.critical('[parse.get_teachers] Not implemented')
-    return None
+def get_teacher_names() -> List[str]:
+    while not teachers_names_to_requests:  # todo better internet errors handle
+        update_global_dicts()
+    return [
+        teacher.split(' - ')[0]
+        for teacher in teachers_names_to_requests.keys()
+    ]
+
+
+def get_teachers(session_token, searchtext, labels: Tuple[str] = ('firstname', 'lastname', 'reslink'),
+                 role=1, people=0, post=0, chair=0, subdivision=0, limit=10, offset=0) \
+        -> Optional[tuple[pd.DataFrame, bool]]:
+    """
+    Teacher Series can include:
+        chair         -- ???.\n
+        depname       -- ???.\n
+        depname_short -- ???.\n
+        faculty       -- ???.\n
+        faculty_short -- ???.\n
+        firstname     -- ???.\n
+        id            -- ???.\n
+        image         -- Image url.\n
+        lastname      -- ???.\n
+        middlename    -- ???.\n
+        pluralist     -- ???.\n
+        post          -- ???.\n
+        reslink       -- guap.ru teacher link (short: without https://pro.guap.ru/).\n
+        subdivision   -- ???.\n
+        works         -- list of ???.\n
+    :param session_token: ???
+    :param searchtext: ???
+    :param labels: ???
+    :param role: ???
+    :param people: ???
+    :param post: ???
+    :param chair: ???
+    :param subdivision: ???
+    :param limit: ???
+    :param offset: ???
+    :return Teachers and is any teachers left
+    """
+    with requests.Session() as sess:
+        sess.cookies['PHPSESSID'] = session_token
+        response = sess.post(
+            'https://pro.guap.ru/getpeoples/',
+            data={'role': role, 'people': people, 'post': post,
+                  'chair': chair, 'subdivision': subdivision,
+                  'searchtext': searchtext, 'limit': limit, 'offset': offset})
+        if response.status_code == 401:
+            return None  # Invalid login/password
+        json_obj = json.loads(
+            utils.decode_unicode(response.content),
+            strict=False)
+        return pd.DataFrame(
+            columns=labels,
+            data=([task[label] for label in labels] for task in
+                  json_obj['people'])), json_obj['isyetitems']
 
 
 sess_groups_names_to_requests = dict()
@@ -155,47 +209,35 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
 def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) \
         -> Optional[pd.DataFrame]:
     """
-    all fields are strings or nulls
-    get-student-tasksdictionaries: {
-        tasks: [
-            <task-objects list(
-                id             task id
-                user_id        teacher id
-                datecreate     creation date
-                dateupdate     last update date (not sure)
-                name           task title
-                description    task description
-                type           task type id
-                tt_name        task type name
-                public         ???
-                semester       task semester id
-                markpoint      task maximum grade
-                reportRequired ???
-                url            attached link (by teacher)
-                ordernum       for identical subjects, this field increases from one
-                expulsionLine  ???
-                plenty         ???
-                harddeadline   hard deadline data
-                grid           ???
-                subject        task subject id
-                subject_name   task subject name
-                hash           ???
-                filename       attached file (by teacher)
-                semester_name  task semester name
-                type_name      task type name
-                status         task status id
-                curPoints      received grade
-                status_name    task status name
-            )>
-        ],
-        dictionaries: {
-            status: [<verification stages list (id, name)>],
-            subjects: [<subjects list (id, text, semester)>],
-            semester: [<semesters list (id, name)>], # names starts with space
-            types: [<task types list (id, name)>],
-            values: [...], offset and limit   # IDK what is this
-        }
-    }
+    Task Series can include:    todo sort by utility
+        id             --  task id\n
+        user_id        --  teacher id\n
+        datecreate     --  creation date\n
+        dateupdate     --  last update date (not sure)\n
+        name           --  task title\n
+        description    --  task description\n
+        type           --  task type id\n
+        tt_name        --  task type name\n
+        public         --  ???\n
+        semester       --  task semester id\n
+        markpoint      --  task maximum grade\n
+        reportRequired --  ???\n
+        url            --  attached link (by teacher)\n
+        ordernum       --  for identical subjects, this field increases from one\n
+        expulsionLine  --  ???\n
+        plenty         --  ???\n
+        harddeadline   --  hard deadline data\n
+        grid           --  ???\n
+        subject        --  task subject id\n
+        subject_name   --  task subject name\n
+        hash           --  ???\n
+        filename       --  attached file (by teacher)\n
+        semester_name  --  task semester name\n
+        type_name      --  task type name\n
+        status         --  task status id\n
+        curPoints      --  received grade\n
+        status_name    --  task status name\n
+    all fields are strings or nulls.
     """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
@@ -203,7 +245,7 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
         if response.status_code == 401:
             return None  # Invalid login/password
         json_obj = json.loads(
-            response.content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            utils.decode_unicode(response.content),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -213,21 +255,16 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
 
 def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'filelink')) -> Optional[pd.DataFrame]:
     """
-    getstudentmaterials: {
-        materials: [
-            <material-objects list(
-                id         material id
-                datecreate create date
-                name       material name and description
-                semester   material semester id
-                isPublic   "1" if public
-                url        external link
-                filelink   guap /get-material/* file link (may be "/get-material/" if empty)
-                subject    <subject-id list>
-                groups     <??? list>
-            )>
-        ]
-      }
+    Materials Series can include:
+        id         -- material id.\n
+        datecreate -- create date.\n
+        name       -- material name and description.\n
+        semester   -- material semester id.\n
+        isPublic   -- "1" if public.\n
+        url        -- external link.\n
+        filelink   -- guap /get-material/* file link (may be "/get-material/" if empty).\n
+        subject    -- <subject-id list>.\n
+        groups     -- <??? list>.\n
     """
     with requests.Session() as sess:
         sess.cookies['PHPSESSID'] = session_token
@@ -235,7 +272,7 @@ def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'file
         if response.status_code == 401:
             return None  # Invalid login/password
         json_obj = json.loads(
-            response.content.decode(encoding='unicode_escape', errors='ignore').replace(r'\/', '/'),
+            utils.decode_unicode(response.content),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -259,7 +296,7 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    pprint(get_sessions('4142'))
+    print(get_teachers(get_session_token(*test.get_logpas()), searchtext='Бариков')[0].to_string())
     ...
 
 

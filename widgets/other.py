@@ -2,6 +2,7 @@ import pandas as pd
 from kivy.clock import mainthread
 from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
+from kivymd.uix.list import OneLineListItem
 
 import parse
 from utils import Session
@@ -63,16 +64,24 @@ class WSessions(Screen, UpdatableList):
 class WTeachers(Screen):
     def __init__(self, **kwargs):
         super(WTeachers, self).__init__(**kwargs)
-        self.data = parse.get_teachers()
-        self.filter = self.data
 
-    def add_teachers(self):
+    def add_teachers(self, search_text: str):
         self.ids.teachers.clear_widgets()
 
-        self.data.where(self.filter).apply(
-            lambda teacher: self.ids.teachers.add_widget(WTeacher(teacher)),
-            axis=1
-        )
+        data = parse.get_teachers(parse.get_session_token(
+            MDApp.get_running_app().login,
+            MDApp.get_running_app().password
+        ), search_text)
+        if data is not None and not data[0].empty:
+            # todo handle data[1]
+            data[0].apply(
+                lambda teacher: self.ids.teachers.add_widget(WTeacher(teacher)),
+                axis=1
+            )
+        else:
+            self.ids.teachers.add_widget(
+                OneLineListItem(text='Nothing')
+            )
 
 
 class WSettings(Screen):

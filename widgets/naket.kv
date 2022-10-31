@@ -9,6 +9,12 @@
     halign: 'center'
     valign: 'middle'
 
+<HrefWrapLabel@WrapLabel>:
+    markup: True
+    on_ref_press:
+        import webbrowser
+        webbrowser.open(args[1])
+
 <OthersButton@MDRoundFlatButton>:
     pos_hint: {"center_x": .5}
     width: self.parent.width    # to fit screen
@@ -96,20 +102,13 @@
     WrapLabel:
         id: name
         text: 'name'
-    WrapLabel:
+    HrefWrapLabel:
         id: url
         text: 'url'
-        markup: True
-        on_ref_press:
-            import webbrowser
-            webbrowser.open(args[1])
-    WrapLabel:
+    HrefWrapLabel:
         id: filelink
         text: 'filelink'
-        markup: True
-        on_ref_press:
-            import webbrowser
-            webbrowser.open(args[1])
+
 
 <WSessions>:
     ScrollView:
@@ -143,24 +142,43 @@
         text: 'teacher'
 
 <WTeachers>:
-    MDBoxLayout:
+    BoxLayout:
         orientation: 'vertical'
+        spacing: dp(10)
+        padding: dp(20)
+        pos_hint:{'center_x': 0.5, 'y': 0.85}
 
-        MDTopAppBar:
-            title: 'filter'
+        BoxLayout:
+            size_hint_y: None
+            height: self.minimum_height
+
+            MDIconButton:
+                icon: 'magnify'
+
             MDTextField:
+                id: search_field
+                hint_text: 'Teacher name'
+                on_text_validate:
+                    root.add_teachers(self.text)
 
-        ScrollView:
-            do_scroll_x: False
-            do_scroll_y: True
-
-            MDBoxLayout:
-                adaptive_height: True
-                orientation: 'vertical'
-                spacing: 10
-                id: teachers
+    RecycleView:
+        pos_hint:{'center_x': 0.5, 'center_y': 0.4}
+        MDList:
+            id: teachers
 
     ToHomeButton:
+
+<WTeacher>:
+    WrapLabel:
+        id: firstname
+        text: 'firstname'
+    WrapLabel:
+        id: lastname
+        text: 'lastname'
+    HrefWrapLabel:
+        id: reslink
+        text: 'reslink'
+
 
 <WCalendarExport>:
     # Type here
