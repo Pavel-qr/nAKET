@@ -52,6 +52,8 @@ class NaketApp(MDApp):
                          default_primary_palette='DeepOrange')
 
     def decrypt(self, string: str) -> str:
+        if not string:
+            return string
         return self.fernet.decrypt(string.encode()).decode()
 
     def encrypt(self, string: str) -> str:
