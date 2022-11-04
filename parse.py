@@ -119,13 +119,13 @@ def get_teachers(session_token, searchtext, labels: Tuple[str] = ('firstname', '
         subdivision   -- ???.\n
         works         -- list of ???.\n
     :param session_token: ???
-    :param searchtext: ???
+    :param searchtext: search by name
     :param labels: ???
     :param role: ???
-    :param people: ???
-    :param post: ???
-    :param chair: ???
-    :param subdivision: ???
+    :param people: ids of teachers
+    :param post: Должность
+    :param chair: Подразделение
+    :param subdivision: Факультет/Институт
     :param limit: ???
     :param offset: ???
     :return Teachers and is any teachers left

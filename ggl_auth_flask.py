@@ -61,7 +61,7 @@ def authorize():
     # value doesn't match an authorized URI, you will get a 'redirect_uri_mismatch'
     # error.
     flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
-    print(flow.redirect_uri)
+    print(0, flow.redirect_uri)
 
     authorization_url, state = flow.authorization_url(
         # Enable offline access so that you can refresh an access token without
@@ -78,6 +78,7 @@ def authorize():
 
 @app.route('/oauth2callback')
 def oauth2callback():
+    print(1, flask.request.url)
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
     state = flask.session['state']
@@ -88,6 +89,7 @@ def oauth2callback():
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
     authorization_response = flask.request.url
+    print(authorization_response)
     flow.fetch_token(authorization_response=authorization_response)
 
     # Store credentials in the session.

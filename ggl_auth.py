@@ -28,14 +28,18 @@ def main():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'client_secret.json', SCOPES)
-            flow.redirect_uri = 'http://localhost:8080/oauth2callback'
+            flow.redirect_uri = 'https://localhost:8080/oauth2callback'
             authorization_url, state = flow.authorization_url(
                 # Enable offline access so that you can refresh an access token without
                 # re-prompting the user for permission. Recommended for web server apps.
                 access_type='offline',
                 # Enable incremental authorization. Recommended as a best practice.
                 include_granted_scopes='true')
+
             print(authorization_url, state)
+            authorization_response = input('authorization_response: ')
+            flow.fetch_token(authorization_response=authorization_response)
+            creds = flow.credentials
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
