@@ -9,3 +9,4 @@ Kivy
 kivymd
 lxml
 requests
+flask
