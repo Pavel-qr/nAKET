@@ -181,7 +181,29 @@
 
 
 <WCalendarExport>:
-    # Type here
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: dp(48)
+            spacing: dp(15)
+
+            MDTextField:
+                id: calendar_name
+                hint_text: 'calendar name'
+                mode: 'rectangle'
+                text: 'SUAI'
+
+            MDRoundFlatButton:
+                text: 'create calendar'
+                on_press:
+                    from source.ggl import GoogleCalendar
+                    from source.parse import get_group_rasp
+                    from threading import Thread
+                    g = GoogleCalendar()
+                    rasp = get_group_rasp(root.parent.ids.settings.ids.group.text)
+                    Thread(target=g.upload_events, args=(rasp, calendar_name.text)).start()
+                    # todo add popup on finish
 
     ToHomeButton:
 
@@ -302,4 +324,5 @@
         name: 'teachers'
 
     WCalendarExport:
+        id: calendar
         name: 'calendar_export'
