@@ -3,10 +3,10 @@ from kivy.clock import mainthread
 from kivymd.app import MDApp
 from kivymd.uix.swiper import MDSwiperItem
 
-import parse
-from utils import Lesson
-from widgets.abstract import UpdatableList
-from widgets.items import WLesson, WTask
+from source.parse import get_session_token, get_tasks, get_group_rasp
+from source.utils import Lesson
+from source.widgets.abstract import UpdatableList
+from source.widgets.items import WLesson, WTask
 
 
 class WTasks(MDSwiperItem, UpdatableList):
@@ -25,7 +25,7 @@ class WTasks(MDSwiperItem, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_tasks(
-            parse.get_tasks(parse.get_session_token(
+            get_tasks(get_session_token(
                 MDApp.get_running_app().login,
                 MDApp.get_running_app().password
             ))
@@ -50,7 +50,7 @@ class WSchedule(MDSwiperItem, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_schedule(
-            parse.get_group_rasp(
+            get_group_rasp(
                 MDApp.get_running_app().group
             )
             if MDApp.get_running_app().pass_real_values

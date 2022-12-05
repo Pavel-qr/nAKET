@@ -8,9 +8,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
-import test
-import utils
-from utils import Auditorium, WeekDay, Lesson, Week, Session, month_to_int
+from source.utils import Auditorium, WeekDay, Lesson, Week, Session, month_to_int, decode_unicode
 
 groups_names_to_requests = dict()
 teachers_names_to_requests = dict()
@@ -140,7 +138,7 @@ def get_teachers(session_token, searchtext, labels: Tuple[str] = ('firstname', '
         if response.status_code == 401:
             return None  # Invalid login/password
         json_obj = json.loads(
-            utils.decode_unicode(response.content),
+            decode_unicode(response.content),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -245,7 +243,7 @@ def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_n
         if response.status_code == 401:
             return None  # Invalid login/password
         json_obj = json.loads(
-            utils.decode_unicode(response.content),
+            decode_unicode(response.content),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -272,7 +270,7 @@ def get_materials(session_token: str, labels: Tuple[str] = ('name', 'url', 'file
         if response.status_code == 401:
             return None  # Invalid login/password
         json_obj = json.loads(
-            utils.decode_unicode(response.content),
+            decode_unicode(response.content),
             strict=False)
         return pd.DataFrame(
             columns=labels,
@@ -296,7 +294,6 @@ def get_session_token(login: str, password: str) -> str:
 
 
 def main():
-    print(get_teachers(get_session_token(*test.get_logpas()), searchtext='Бариков')[0].to_string())
     ...
 
 

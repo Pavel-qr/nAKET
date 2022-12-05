@@ -1,4 +1,4 @@
-from widgets import NaketApp
+from source.widgets import NaketApp
 
 if __name__ == '__main__':
     NaketApp().run()

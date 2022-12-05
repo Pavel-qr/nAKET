@@ -4,10 +4,10 @@ from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
 from kivymd.uix.list import OneLineListItem
 
-import parse
-from utils import Session
-from widgets.abstract import UpdatableList
-from widgets.items import WSession, WTeacher, WMaterial
+from source.parse import get_teachers, get_session_token, get_materials, get_sessions
+from source.utils import Session
+from source.widgets.abstract import UpdatableList
+from source.widgets.items import WSession, WTeacher, WMaterial
 
 
 class WMaterials(Screen, UpdatableList):
@@ -27,7 +27,7 @@ class WMaterials(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_materials(
-            parse.get_materials(parse.get_session_token(
+            get_materials(get_session_token(
                 MDApp.get_running_app().login,
                 MDApp.get_running_app().password
             ))
@@ -52,7 +52,7 @@ class WSessions(Screen, UpdatableList):
     def _on_update(self):
         self.refreshing = True
         self.add_sessions(
-            parse.get_sessions(
+            get_sessions(
                 MDApp.get_running_app().group
             )
             if MDApp.get_running_app().pass_real_values
@@ -68,7 +68,7 @@ class WTeachers(Screen):
     def add_teachers(self, search_text: str):
         self.ids.teachers.clear_widgets()
 
-        data = parse.get_teachers(parse.get_session_token(
+        data = get_teachers(get_session_token(
             MDApp.get_running_app().login,
             MDApp.get_running_app().password
         ), search_text)

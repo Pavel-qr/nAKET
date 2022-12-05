@@ -5,8 +5,8 @@ from kivy.base import EventLoop
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager
 
-from widgets.other import *
-from widgets.primary import *
+from source.widgets.other import *
+from source.widgets.primary import *
 
 
 class Naket(ScreenManager):
@@ -17,7 +17,7 @@ class NaketApp(MDApp):
     def __init__(self, **kwargs):
         super(NaketApp, self).__init__(**kwargs)
         # ∨∨∨ during development (replace occurrences with MDApp().user_data_dir or self.user_data_dir on release)
-        self.user_data_dir_dev = '.'
+        self.user_data_dir_dev = 'files'
         config_path = os.path.join(self.user_data_dir_dev, 'config.json')
         if not os.path.exists(config_path):
             self.empty_config_file(config_path)

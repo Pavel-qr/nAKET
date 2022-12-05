@@ -1,7 +1,7 @@
 import pandas as pd
 
-from utils import number_to_str_time, Lesson, Session
-from widgets.abstract import AbstractListItem
+from source.utils import number_to_str_time, Lesson, Session
+from source.widgets.abstract import AbstractListItem
 
 
 class WTask(AbstractListItem):
