@@ -5,8 +5,8 @@ from kivymd.uix.swiper import MDSwiperItem
 
 import parse
 from utils import Lesson
-from widgets.abstract import UpdatableList
-from widgets.items import WLesson, WTask
+from abstract import UpdatableList
+from items import WLesson, WTask
 
 
 class WTasks(MDSwiperItem, UpdatableList):

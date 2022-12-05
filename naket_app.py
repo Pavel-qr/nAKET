@@ -5,8 +5,8 @@ from kivy.base import EventLoop
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager
 
-from widgets.other import *
-from widgets.primary import *
+from primary import *
+from other import *
 
 
 class Naket(ScreenManager):

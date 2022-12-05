@@ -6,8 +6,8 @@ from kivymd.uix.list import OneLineListItem
 
 import parse
 from utils import Session
-from widgets.abstract import UpdatableList
-from widgets.items import WSession, WTeacher, WMaterial
+from abstract import UpdatableList
+from items import WSession, WTeacher, WMaterial
 
 
 class WMaterials(Screen, UpdatableList):
