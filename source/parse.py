@@ -204,7 +204,7 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
     return result
 
 
-def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name')) \
+def get_tasks(session_token: str, labels: Tuple[str] = ('id', 'user_id', 'type_name', 'name', 'subject_name')) \
         -> Optional[pd.DataFrame]:
     """
     Task Series can include:    todo sort by utility

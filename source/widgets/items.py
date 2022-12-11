@@ -8,7 +8,7 @@ class WTask(AbstractListItem):
     def __init__(self, task: pd.Series | None = None, **kwargs):
         super(WTask, self).__init__(**kwargs)
         if task is not None:
-            self.ids.teacher.text = task['user_id']
+            self.ids.subject_name.text = task['subject_name']
             self.ids.type.text = task['type_name']
             self.ids.name.text = task['name']
 
