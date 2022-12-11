@@ -4,7 +4,7 @@ from typing import List
 
 import googleapiclient
 from google.auth.transport.requests import Request
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
@@ -26,7 +26,7 @@ colors = {
 }
 
 type_to_color = {
-    'Л': '3',
+    'Л': '1',
     'ПР': '6',
     'ЛР': '7',
     'КР': '5',
@@ -50,7 +50,7 @@ class GoogleCalendar:
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first time.
         if os.path.exists(self.TOKEN_FILE):
-            credentials = service_account.Credentials.from_authorized_user_file(self.TOKEN_FILE, self.SCOPES)
+            credentials = Credentials.from_authorized_user_file(self.TOKEN_FILE, self.SCOPES)
         # If there are no (valid) credentials available, let the user log in.
         if not credentials or not credentials.valid:
             if credentials and credentials.expired and credentials.refresh_token:
