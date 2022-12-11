@@ -195,8 +195,8 @@ def get_sessions(group_name: str | int) -> Optional[List[Session]]:
                 date=datetime.date(datetime.date.today().year, month_to_int.get(date[1], 1), int(date[0])),
                 number=int(child.find_previous_sibling('h4').text.split()[0]),
                 auditorium=Auditorium(
-                    address=child.select('span>em')[0].text.split('. ')[0].replace(' – ', ''),
-                    number=child.select_one('span>em').text.split('. ')[1]
+                    address=' '.join(child.select('span>em')[0].text.split()[1:3]),
+                    number=child.select_one('span>em').text.split()[-1]
                 ),
                 teacher=child.select_one('div').select_one('.preps').select_one('a').text,
             )
